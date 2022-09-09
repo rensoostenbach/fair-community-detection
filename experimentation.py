@@ -8,6 +8,7 @@ from utils import (
     random_sample_edges,
     potentional_edge_list,
     modularity_obj_function,
+    score_function,
 )
 
 # load the data
@@ -25,7 +26,9 @@ for graph in df.itertuples(index=False):
     G.add_nodes_from(nodes)
     G.add_edges_from(edges)
 
-    sampled_G = random_sample_edges(nodes=nodes, edges=edges, alpha=0.8)
+    sampled_G, sampled_edges, nonsampled_edges = random_sample_edges(
+        nodes=nodes, edges=edges, alpha=0.8
+    )
 
     #  Not important drawing stuff, just for myself
     pos = nx.spring_layout(G)  # compute graph layout
@@ -39,11 +42,29 @@ for graph in df.itertuples(index=False):
 
     # Continue with trying to calculate the score for missing edges?
     potential_edges = potentional_edge_list(G=sampled_G, nodes=nodes)
-    for node_i, node_j in potential_edges:
-        # TODO: modularity uitrekenen met en zonder edge i,j voor de score functie s_ij
-        modularity_without = modularity_obj_function(communities=coms, G=sampled_G, edges=edges)
 
-        G_with = sampled_G.add_edge(node_i, node_j)
-        modularity_with = modularity_obj_function(communities=coms, G=G_with, edges=edges)
+    # Now we need to randomly choose 10000 pairs of missing links (non_sampled_edges) and non-links (potential_edges)
+    for i in range(10000):
+        missing_link = nonsampled_edges[np.random.randint(nonsampled_edges.shape[0]), :]
+        non_link = potential_edges[np.random.randint(potential_edges.shape[0]), :]
+
+        G_with_missing_link = sampled_G.copy()
+        G_with_missing_link.add_edge(missing_link[0], missing_link[1])
+        score_with_missing_link = score_function(
+            G_without_ij=sampled_G,
+            G_with_ij=G_with_missing_link,
+            communities=coms,
+            edges=edges,
+        )
+
+        G_with_non_link = sampled_G.copy()
+        G_with_non_link.add_edge(non_link[0], non_link[1])
+        score_with_non_link = score_function(
+            G_without_ij=sampled_G,
+            G_with_ij=G_with_non_link,
+            communities=coms,
+            edges=edges,
+        )
+
     if graph_idx > 5:
         break

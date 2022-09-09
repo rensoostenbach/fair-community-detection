@@ -42,7 +42,9 @@ def random_sample_edges(nodes: np.ndarray, edges: np.ndarray, alpha: float):
     :param nodes: A numpy array containing the nodes in the original graph
     :param edges: A numpy array containing the edges in the original graph
     :param alpha: A float describing how much we should sample, 0 > alpha > 1
-    :return: The sampled networkx Graph
+    :return sampled_G: The sampled networkx Graph
+    :return sampled_edges: The sampled edges
+    :return nonsampled_edges: The edges that were in the original graph, but not in the sampled Graph
     """
     num_samples = round(alpha * edges.shape[0])
 
@@ -53,8 +55,9 @@ def random_sample_edges(nodes: np.ndarray, edges: np.ndarray, alpha: float):
     sampled_G = nx.Graph()
     sampled_G.add_nodes_from(nodes)
     sampled_G.add_edges_from(sampled_edges)
+    nonsampled_edges = edges[random_indices[num_samples:]]
 
-    return sampled_G
+    return sampled_G, sampled_edges, nonsampled_edges
 
 
 def potentional_edge_list(G, nodes):
@@ -87,9 +90,17 @@ def modularity_obj_function(communities, G, edges):
         l_r = len(subgraph.edges)
         M = edges.shape[0]
         d_r = sum(x[1] for x in subgraph.degree)
-        modularity += ((l_r/M)-(d_r/2*M)**2)
+        modularity += (l_r / M) - ((d_r / (2 * M)) ** 2)
 
     return modularity
 
-def score_function(edge_i, edge_j):
-    pass
+
+def score_function(G_without_ij, G_with_ij, communities, edges):
+    mod_G_without_ij = modularity_obj_function(
+        communities=communities, G=G_without_ij, edges=edges
+    )
+    mod_G_with_ij = modularity_obj_function(
+        communities=communities, G=G_with_ij, edges=edges
+    )
+    score = mod_G_with_ij - mod_G_without_ij
+    return score
