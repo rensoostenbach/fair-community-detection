@@ -104,3 +104,34 @@ def score_function(G_without_ij, G_with_ij, communities, edges):
     )
     score = mod_G_with_ij - mod_G_without_ij
     return score
+
+
+def compute_tpr_fpr(scores_with_missing_link, scores_with_non_link):
+    true_positives = 0
+    false_positives = 0
+    for missing_link_score, non_link_score in zip(scores_with_missing_link, scores_with_non_link):
+        if missing_link_score > non_link_score:
+            true_positives += 1
+        elif non_link_score > missing_link_score:
+            false_positives += 1
+        else:  # The two scores are equal, so we break ties randomly
+            random_choice = np.random.choice([True, False])
+            if random_choice:
+                true_positives += 1
+            else:
+                false_positives += 1
+
+    true_positive_rate = true_positives/len(scores_with_missing_link)
+    false_positive_rate = false_positives/len(scores_with_missing_link)
+
+    return true_positive_rate, false_positive_rate
+
+
+def plot_roc_curve(tpr, fpr):
+    plt.plot(fpr, tpr, label='ROC Curve')
+    plt.plot([0, 1], [0, 1], linestyle='--', color='red', label='Random Classifier')
+    plt.plot([0, 0, 1], [0, 1, 1], linestyle=':', color='green', label='Perfect Classifier')
+    plt.xlabel('False positive rate')
+    plt.ylabel('True positive rate')
+    plt.legend(loc="lower right")
+    plt.show()
