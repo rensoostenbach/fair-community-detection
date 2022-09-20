@@ -22,7 +22,7 @@ def fairness_per_node(G: nx.Graph, node_u: int, communities: list, com_a: list):
     """
     We compute our own fairness metric here for a single node u
 
-    :param G: A networkx graph
+    :param G: A NetworkX graph
     :param node_u: Node u in the graph G
     :param communities: List of all the (detected or ground-truth) communities
     :param com_a: The list of nodes that are in the same community as node_u
@@ -49,7 +49,16 @@ def fairness_per_node(G: nx.Graph, node_u: int, communities: list, com_a: list):
         pass
 
 
-def fairness(G, pred_coms, real_coms):
+def fairness(G: nx.Graph, pred_coms: list, real_coms: list):
+    """
+    Compute the fairness via our own proposed metric.
+
+    :param G: A NetworkX graph
+    :param pred_coms: List of the predicted communities
+    :param real_coms: List of the real communities
+    :return: A number between 0 and 1 indicating the fairness of the predicted
+             communities compared to the "real" communities
+    """
     fair_pred_nodes = set()
     for idx, community in enumerate(pred_coms):
         for node in community:
