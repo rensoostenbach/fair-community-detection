@@ -1,0 +1,73 @@
+import networkx as nx
+from utils import remove_community
+
+
+def jaccard_distance(G: nx.Graph, node_u: int, node_v: int):
+    """
+    Compute the Jaccard distance between two nodes as described in Shao et al. 2015
+
+    :param G: A NetworkX graph
+    :param node_u: ID of node u in the graph G
+    :param node_v: ID of node v in the graph G
+    :return: The Jaccard distance between nodes u and v
+    """
+    neighbors_u = set(G.neighbors(node_u))
+    neighbors_v = set(G.neighbors(node_v))
+    return 1 - (len(neighbors_u.intersection(neighbors_v))) / (
+        len(neighbors_u.union(neighbors_v))
+    )
+
+
+def fairness_per_node(G: nx.Graph, node_u: int, communities: list, com_a: list):
+    """
+    We compute our own fairness metric here for a single node u
+
+    :param G: A networkx graph
+    :param node_u: Node u in the graph G
+    :param communities: List of all the (detected or ground-truth) communities
+    :param com_a: The list of nodes that are in the same community as node_u
+    :return node_u: Returns the node if fairness constraints are met, otherwise pass
+    """
+
+    left_sum = 0
+    right_sum = 0
+    for node_v in com_a:
+        left_sum += jaccard_distance(G, node_u, node_v)
+
+    communities = remove_community(node_u=node_u, communities=communities)
+    # Transform the list of frozensets to a flat list of all nodes
+    communities = [node for community in communities for node in community]
+
+    for node_v in communities:
+        right_sum += jaccard_distance(G=G, node_u=node_u, node_v=node_v)
+
+    left_side = (1 / (len(com_a) - 1)) * left_sum
+    right_side = (1 / len(communities)) * right_sum
+    if left_side <= right_side:
+        return node_u
+    else:
+        pass
+
+
+def fairness(G, pred_coms, real_coms):
+    fair_pred_nodes = set()
+    for idx, community in enumerate(pred_coms):
+        for node in community:
+            fair_pred_nodes.add(
+                fairness_per_node(
+                    G=G, node_u=node, communities=pred_coms, com_a=community
+                )
+            )
+
+    fair_real_nodes = set()
+    for idx, community in enumerate(real_coms):
+        for node in community:
+            fair_real_nodes.add(
+                fairness_per_node(
+                    G=G, node_u=node, communities=real_coms, com_a=community
+                )
+            )
+
+    return (len(fair_pred_nodes.intersection(fair_real_nodes))) / (
+        len(fair_pred_nodes.union(fair_real_nodes))
+    )
