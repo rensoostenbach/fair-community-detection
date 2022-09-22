@@ -26,7 +26,7 @@ def fairness_per_node(G: nx.Graph, node_u: int, communities: list, com_a: list):
     :param node_u: Node u in the graph G
     :param communities: List of all the (detected or ground-truth) communities
     :param com_a: The list of nodes that are in the same community as node_u
-    :return node_u: Returns the node if fairness constraints are met, otherwise pass
+    :return bool: Boolean indicating if node_u meets the fairness constraints
     """
 
     left_sum = 0
@@ -34,19 +34,17 @@ def fairness_per_node(G: nx.Graph, node_u: int, communities: list, com_a: list):
     for node_v in com_a:
         left_sum += jaccard_distance(G, node_u, node_v)
 
-    communities = remove_community(node_u=node_u, communities=communities)
+    com_b = remove_community(node_u=node_u, communities=communities)
     # Transform the list of frozensets to a flat list of all nodes
-    communities = [node for community in communities for node in community]
+    com_b = [node for community in com_b for node in community]
 
-    for node_v in communities:
+    for node_v in com_b:
         right_sum += jaccard_distance(G=G, node_u=node_u, node_v=node_v)
 
     left_side = (1 / (len(com_a) - 1)) * left_sum
-    right_side = (1 / len(communities)) * right_sum
-    if left_side <= right_side:
-        return node_u
-    else:
-        pass
+    right_side = (1 / len(com_b)) * right_sum
+
+    return left_side <= right_side
 
 
 def fairness(G: nx.Graph, pred_coms: list, real_coms: list):
