@@ -113,4 +113,4 @@ def fairness_small_large(G: nx.Graph, small_large: dict, unfair_nodes: list):
         else:
             num_large += 1
 
-    return abs(num_small - num_large) / len(G.nodes)
+    return abs(num_small - num_large) / len(unfair_nodes)
