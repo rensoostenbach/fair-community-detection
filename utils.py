@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def draw_graph(G: nx.Graph, pos: dict, communities=None):
@@ -33,11 +34,11 @@ def draw_graph(G: nx.Graph, pos: dict, communities=None):
     plt.show()
 
 
-def remove_community(node_u, communities):
+def remove_community(node_u: int, communities: list):
     """
     Remove the community that node_u belongs to in the list of communities
 
-    :param node_u: The node for which we want to remove its community
+    :param node_u: The ID of the node for which we want to remove its community
     :param communities: List of communities
     :return communities: List of communities without the community that node_u belongs to
     """
@@ -47,3 +48,23 @@ def remove_community(node_u, communities):
                 com_to_delete = idx
     communities = communities[:com_to_delete] + communities[com_to_delete + 1 :]
     return communities
+
+
+def small_large_communities(communities, percentile):
+    """
+    Decide which communities are small ones and large ones, based on a percentile cutoff value.
+
+    :param communities: List of communities
+    :param percentile: The percentile on which the cutoff value is based (e.g. 75 for 75th percentile)
+    :return small_large: Dictionary indicating per node whether it is in a small or large community
+    """
+    lengths = np.array([len(community) for community in communities])
+    small_large = {}
+
+    for idx, community in enumerate(communities):
+        for node in community:
+            if lengths[idx] >= np.percentile(lengths, percentile):
+                small_large[node] = "large"
+            else:
+                small_large[node] = "small"
+    return small_large
