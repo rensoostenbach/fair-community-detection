@@ -17,3 +17,14 @@ def purity_single_community(pred_com, real_coms):
 
 def inverse_purity(pred_coms, real_coms):
     return purity(pred_coms=real_coms, real_coms=pred_coms)
+
+
+def f_measure(pred_coms, real_coms):
+    return (
+        2
+        * purity(pred_coms=pred_coms, real_coms=real_coms)
+        * inverse_purity(pred_coms=pred_coms, real_coms=real_coms)
+    ) / (
+        purity(pred_coms=pred_coms, real_coms=real_coms)
+        + inverse_purity(pred_coms=pred_coms, real_coms=real_coms)
+    )
