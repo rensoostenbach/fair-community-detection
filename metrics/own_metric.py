@@ -94,3 +94,23 @@ def fairness(G: nx.Graph, pred_coms: list, real_coms: list):
         fair_real_nodes,
         unfair_real_nodes,
     )
+
+
+def fairness_small_large(G: nx.Graph, small_large: dict, unfair_nodes: list):
+    """
+    Compute a fairness metric regarding small and large communities
+
+    :param G: A NetworkX graph
+    :param small_large: Dictionary indicating per node what size community it belongs to
+    :param unfair_nodes: List of unfair nodes
+    :return: The fairness metric, closer to 0 means better fairness.
+    """
+    num_small = 0
+    num_large = 0
+    for unfair_node in unfair_nodes:
+        if small_large[unfair_node] == "small":
+            num_small += 1
+        else:
+            num_large += 1
+
+    return abs(num_small - num_large) / len(G.nodes)
