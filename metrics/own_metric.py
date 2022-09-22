@@ -47,6 +47,29 @@ def fairness_per_node(G: nx.Graph, node_u: int, communities: list, com_a: list):
     return left_side <= right_side
 
 
+def fair_unfair_nodes(G: nx.Graph, communities: list):
+    """
+    Compute the set of fair and unfair nodes
+
+    :param G: A NetworkX graph
+    :param communities: List of all the (detected or ground-truth) communities
+    :return fair_nodes: Set of the fair nodes as determined by the fairness constraint
+    :return unfair_nodes: Set of the unfair nodes  as determined by the fairness constraint
+    """
+    fair_nodes = set()
+    unfair_nodes = set()
+    for idx, community in enumerate(communities):
+        for node in community:
+            if fairness_per_node(
+                G=G, node_u=node, communities=communities, com_a=community
+            ):
+                fair_nodes.add(node)
+            else:
+                unfair_nodes.add(node)
+
+    return fair_nodes, unfair_nodes
+
+
 def fairness(G: nx.Graph, pred_coms: list, real_coms: list):
     """
     Compute the fairness via our own proposed metric.
@@ -57,24 +80,17 @@ def fairness(G: nx.Graph, pred_coms: list, real_coms: list):
     :return: A number between 0 and 1 indicating the fairness of the predicted
              communities compared to the "real" communities
     """
-    fair_pred_nodes = set()
-    for idx, community in enumerate(pred_coms):
-        for node in community:
-            fair_pred_nodes.add(
-                fairness_per_node(
-                    G=G, node_u=node, communities=pred_coms, com_a=community
-                )
-            )
+    fair_pred_nodes, unfair_pred_nodes = fair_unfair_nodes(G=G, communities=pred_coms)
+    fair_real_nodes, unfair_real_nodes = fair_unfair_nodes(G=G, communities=real_coms)
 
-    fair_real_nodes = set()
-    for idx, community in enumerate(real_coms):
-        for node in community:
-            fair_real_nodes.add(
-                fairness_per_node(
-                    G=G, node_u=node, communities=real_coms, com_a=community
-                )
-            )
-
-    return (len(fair_pred_nodes.intersection(fair_real_nodes))) / (
+    fairness_score = (len(fair_pred_nodes.intersection(fair_real_nodes))) / (
         len(fair_pred_nodes.union(fair_real_nodes))
+    )
+
+    return (
+        fairness_score,
+        fair_pred_nodes,
+        unfair_pred_nodes,
+        fair_real_nodes,
+        unfair_real_nodes,
     )
