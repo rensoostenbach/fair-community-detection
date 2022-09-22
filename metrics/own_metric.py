@@ -103,7 +103,6 @@ def fairness_small_large(small_large: dict, unfair_nodes: list):
     A value closer to 0 indicates better fairness, while a value of 1 indicates that
     the unfair nodes all belong to the same type of community.
 
-    :param G: A NetworkX graph
     :param small_large: Dictionary indicating per node what size community it belongs to
     :param unfair_nodes: List of unfair nodes
     :return: The fairness metric, ranging from 0-1
