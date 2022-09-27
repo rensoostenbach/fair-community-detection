@@ -72,6 +72,17 @@ def fair_unfair_nodes(G: nx.Graph, communities: list):
     return fair_nodes, unfair_nodes
 
 
+def fairness_gt(fair_nodes, unfair_nodes):
+    """
+    Calculate the fairness score according to only the ground truth communities (first version).
+
+    :param fair_nodes: Set of the fair nodes as determined by the fairness constraint
+    :param unfair_nodes: Set of the unfair nodes as determined by the fairness constraint
+    :return: The first version of the fairness score, thus only considering GT communities
+    """
+    return len(fair_nodes) / (len(fair_nodes) + len(unfair_nodes))
+
+
 def fairness(G: nx.Graph, pred_coms: list, real_coms: list):
     """
     Compute the fairness via our own proposed metric (second version).
