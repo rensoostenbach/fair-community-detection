@@ -18,7 +18,7 @@ G = LFR_benchmark_graph(
 G.remove_edges_from(nx.selfloop_edges(G))
 
 communities = {frozenset(G.nodes[v]["community"]) for v in G}
-communities = list(communities)
+gt_communities = list(communities)
 
 #  Not important drawing stuff, just for myself
 # Coloring every node such that communities have the same color
@@ -34,17 +34,17 @@ pred_coms = algorithms.louvain(g_original=G)
     unfair_pred_nodes,
     fair_real_nodes,
     unfair_real_nodes,
-) = fairness(G=G, pred_coms=pred_coms.communities, real_coms=communities)
+) = fairness(G=G, pred_coms=pred_coms.communities, real_coms=gt_communities)
 
 print(f"Our own (fairness) metric: {fairness_score}")
-print(f"Purity: {purity(pred_coms=pred_coms.communities, real_coms=communities)}")
+print(f"Purity: {purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}")
 print(
-    f"Inverse purity: {inverse_purity(pred_coms=pred_coms.communities, real_coms=communities)}"
+    f"Inverse purity: {inverse_purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}"
 )
 
-small_large = small_large_communities(communities=communities, percentile=90)
+small_large = small_large_communities(communities=gt_communities, percentile=90)
 print(
-    f"Small/large fairness: {fairness_small_large(G=G, small_large=small_large, unfair_nodes=unfair_pred_nodes)}"
+    f"Small/large fairness of Louvain: {fairness_small_large(small_large=small_large, unfair_nodes=unfair_pred_nodes)}"
 )
 
 print("debugger here")
