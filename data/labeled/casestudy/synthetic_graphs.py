@@ -113,8 +113,8 @@ def varying_denseness(
     in the same community, and lower means that a part of the intra-community edges has been removed.
 
     :param num_nodes: Number of nodes in both communities (always the same for now)
-    :param denseness_G1: The denseness of the first community
-    :param denseness_G2: The denseness of the second community
+    :param densenesses_G1: The denseness of the first community
+    :param densenesses_G2: The denseness of the second community
     :param inter_community_edges: Fraction of inter-community edges
     :return: Calls calculate_fairness_metric(G) which will print fairness metric
     """
