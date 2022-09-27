@@ -1,4 +1,6 @@
+from operator import countOf
 import networkx as nx
+import numpy as np
 from utils import remove_community
 
 
@@ -72,23 +74,26 @@ def fair_unfair_nodes(G: nx.Graph, communities: list):
 
 def fairness(G: nx.Graph, pred_coms: list, real_coms: list):
     """
-    Compute the fairness via our own proposed metric.
+    Compute the fairness via our own proposed metric (second version).
 
     :param G: A NetworkX graph
     :param pred_coms: List of the predicted communities
     :param real_coms: List of the real communities
-    :return: A number between 0 and 1 indicating the fairness of the predicted
-             communities compared to the "real" communities
+    :return fairness_score: The fairness score ranged between 0 and 1.
+    :return fair_pred_nodes: The set of predicted nodes that are deemed to be fair
+    :return unfair_pred_nodes: The set of predicted nodes that are deemed to be unfair
+    :return fair_real_nodes: The set of real nodes that are deemed to be fair
+    :return unfair_real_nodes: The set of real nodes that are deemed to be unfair
     """
     fair_pred_nodes, unfair_pred_nodes = fair_unfair_nodes(G=G, communities=pred_coms)
     fair_real_nodes, unfair_real_nodes = fair_unfair_nodes(G=G, communities=real_coms)
 
-    fairness_score = (len(fair_pred_nodes.intersection(fair_real_nodes))) / (
-        len(fair_pred_nodes.union(fair_real_nodes))
-    )
+    fairness_score_second_version = (
+        len(fair_pred_nodes.intersection(fair_real_nodes))
+    ) / (len(fair_pred_nodes.union(fair_real_nodes)))
 
     return (
-        fairness_score,
+        fairness_score_second_version,
         fair_pred_nodes,
         unfair_pred_nodes,
         fair_real_nodes,
@@ -101,7 +106,8 @@ def fairness_small_large(small_large: dict, unfair_nodes: list):
     Compute a fairness metric regarding small and large communities
 
     A value closer to 0 indicates better fairness, while a value of 1 indicates that
-    the unfair nodes all belong to the same type of community.
+    the unfair nodes all belong to the same type of community. This function can be extended
+    to also accommodate for dense/less dense communities etc.
 
     :param small_large: Dictionary indicating per node what size community it belongs to
     :param unfair_nodes: List of unfair nodes
@@ -115,4 +121,19 @@ def fairness_small_large(small_large: dict, unfair_nodes: list):
         else:
             num_large += 1
 
+    # TODO: Think of a correct way to compare these two fractions
+    fraction_small = num_small / countOf(small_large.values(), "small")
+    fraction_large = num_large / countOf(small_large.values(), "large")
+
+    print(
+        f"Fraction of small unfair nodes: {fraction_small} \n Fraction of large unfair nodes: {fraction_large}"
+    )
+
+    # https://math.stackexchange.com/questions/2604566/kl-divergence-between-two-multivariate-bernoulli-distribution
+    kl_divergence = (fraction_small * np.log(fraction_small / fraction_large)) + (
+        (1 - fraction_small) * np.log((1 - fraction_small) / (1 - fraction_large))
+    )
+
+    abs_difference = abs(num_small - num_large) / len(unfair_nodes)
+    abs_fraction_difference = abs(fraction_small - fraction_large)
     return abs(num_small - num_large) / len(unfair_nodes)
