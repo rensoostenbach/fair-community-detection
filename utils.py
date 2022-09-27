@@ -50,11 +50,11 @@ def remove_community(node_u: int, communities: list):
     return communities
 
 
-def small_large_communities(communities, percentile):
+def small_large_communities(communities: list, percentile: int):
     """
     Decide which communities are small ones and large ones, based on a percentile cutoff value.
 
-    :param communities: List of communities
+    :param communities: List of ground-truth communities
     :param percentile: The percentile on which the cutoff value is based (e.g. 75 for 75th percentile)
     :return small_large: Dictionary indicating per node whether it is in a small or large community
     """
