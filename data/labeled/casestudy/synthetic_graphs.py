@@ -110,7 +110,7 @@ def varying_denseness(
     """
     This function is used for generating communities with a specified denseness per community.
     A denseness value of 1 means that every node in a community is connected to every other node
-    in the same community.
+    in the same community, and lower means that a part of the intra-community edges has been removed.
 
     :param num_nodes: Number of nodes in both communities (always the same for now)
     :param denseness_G1: The denseness of the first community
