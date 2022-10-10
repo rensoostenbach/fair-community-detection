@@ -50,12 +50,12 @@ def accuracy_fairness(
     print(f"Accuracy fairness compared: {simple_fairness_metric_types}")
 
 
-def f1_fairness(gt_communities: list, pred_coms: list, mapping: dict):  # TODO:
+def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):  # TODO:
     # Not sure if I should use sklearn implementation, or simply build a confusion matrix myself
     # to calculate the harmonic mean of precision and recall
 
     # Using sklearn implementation requires me to write some code te get y_true and y_pred
-    y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping)
+    y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping_list)
 
 
     return f1_score(y_true, y_pred, average=None)
@@ -122,7 +122,7 @@ def calculate_fairness_metrics(
     real_distribution = [len(community) for community in gt_communities]
     real_fractions = [1] * len(gt_communities)
 
-    achieved_distribution, mapping_dict = mapping(
+    achieved_distribution, mapping_list = mapping(
         gt_communities=gt_communities, pred_coms=pred_communities
     )
     achieved_fractions = list(
@@ -163,7 +163,7 @@ def calculate_fairness_metrics(
         achieved_fractions_type1=achieved_fractions_type1,
         achieved_fractions_type2=achieved_fractions_type2,
     )
-    test = f1_fairness(gt_communities=gt_communities, pred_coms=pred_communities, mapping=mapping_dict)
+    test = f1_fairness(gt_communities=gt_communities, pred_coms=pred_communities, mapping_list=mapping_list)
     emd_fairness(
         real_fractions=real_fractions,
         achieved_fractions=achieved_fractions,
