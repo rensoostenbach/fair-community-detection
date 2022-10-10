@@ -2,8 +2,8 @@ import networkx as nx
 from networkx.generators.community import LFR_benchmark_graph
 from cdlib import algorithms
 
-from metrics.own_metric import fairness, fairness_small_large
 from metrics.ground_truth import purity, inverse_purity
+from metrics.own_metric import calculate_fairness_metrics
 from utils import draw_graph, small_large_communities
 
 
@@ -20,31 +20,26 @@ G.remove_edges_from(nx.selfloop_edges(G))
 communities = {frozenset(G.nodes[v]["community"]) for v in G}
 gt_communities = list(communities)
 
+# CD part
+pred_coms = algorithms.louvain(g_original=G)
+
 #  Not important drawing stuff, just for myself
-# Coloring every node such that communities have the same color
-# node_color = [0] * n
 # pos = nx.spring_layout(G)  # compute graph layout
 # draw_graph(G, pos=pos, communities=communities)
 
-pred_coms = algorithms.louvain(g_original=G)
+print(
+    calculate_fairness_metrics(
+        G=G,
+        gt_communities=gt_communities,
+        pred_communities=pred_coms.communities,
+        fairness_type="small_large",
+        size_percentile=90,
+    )
+)
 
-(
-    fairness_score,
-    fair_pred_nodes,
-    unfair_pred_nodes,
-    fair_real_nodes,
-    unfair_real_nodes,
-) = fairness(G=G, pred_coms=pred_coms.communities, real_coms=gt_communities)
-
-print(f"Our own (fairness) metric: {fairness_score}")
 print(f"Purity: {purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}")
 print(
     f"Inverse purity: {inverse_purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}"
-)
-
-small_large = small_large_communities(communities=gt_communities, percentile=90)
-print(
-    f"Small/large fairness of Louvain: {fairness_small_large(small_large=small_large, unfair_nodes=unfair_pred_nodes)}"
 )
 
 print("debugger here")

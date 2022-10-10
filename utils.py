@@ -34,22 +34,6 @@ def draw_graph(G: nx.Graph, pos: dict, communities=None):
     plt.show()
 
 
-def remove_community(node_u: int, communities: list):
-    """
-    Remove the community that node_u belongs to in the list of communities
-
-    :param node_u: The ID of the node for which we want to remove its community
-    :param communities: List of communities
-    :return communities: List of communities without the community that node_u belongs to
-    """
-    for idx, community in enumerate(communities):
-        for node in community:
-            if node == node_u:
-                com_to_delete = idx
-    communities = communities[:com_to_delete] + communities[com_to_delete + 1 :]
-    return communities
-
-
 def small_large_communities(communities: list, percentile: int):
     """
     Decide which communities are small ones and large ones, based on a percentile cutoff value.
@@ -57,14 +41,136 @@ def small_large_communities(communities: list, percentile: int):
     :param communities: List of ground-truth communities
     :param percentile: The percentile on which the cutoff value is based (e.g. 75 for 75th percentile)
     :return small_large: Dictionary indicating per node whether it is in a small or large community
+    :return small_large_coms: List containing per community whether it is small or large
     """
-    lengths = np.array([len(community) for community in communities])
+    sizes = np.array([len(community) for community in communities])
     small_large = {}
+    small_large_coms = []
 
     for idx, community in enumerate(communities):
+        if sizes[idx] >= np.percentile(sizes, percentile):
+            small_large_coms.append("large")
+        else:
+            small_large_coms.append("small")
         for node in community:
-            if lengths[idx] >= np.percentile(lengths, percentile):
+            if sizes[idx] >= np.percentile(sizes, percentile):
                 small_large[node] = "large"
             else:
                 small_large[node] = "small"
-    return small_large
+    return small_large, small_large_coms
+
+
+def dense_nondense_communities(G: nx.Graph, communities: list, cutoff: float):
+    """
+    Decide which communities are dense ones and non-dense ones, based on a percentile cutoff value.
+
+    :param G: The NetworkX Graph from which we can extract the edges
+    :param communities: List of ground-truth communities
+    :param cutoff: The cutoff on which the cutoff value is based (0.5 for 50% of intra-community edges)
+    :return dense_nondense: Dictionary indicating per node whether it is in a dense or non-dense community
+    :return dense_nondense_coms: List containing per community whether it is dense or non-dense
+    """
+    intra_com_edges = np.array([G.subgraph(communities[idx]).size() for idx, community in enumerate(communities)])
+    # Need to divide above numbers by maximum amount of edges possible in community
+    sizes = [len(community) for community in communities]
+    max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
+    densities = np.array(intra_com_edges/(max_possible_edges))
+    dense_nondense = {}
+    dense_nondense_coms = []
+
+    for idx, community in enumerate(communities):
+        if densities[idx] >= cutoff:
+            dense_nondense_coms.append("dense")
+        else:
+            dense_nondense_coms.append("non-dense")
+        for node in community:
+            if densities[idx] >= cutoff:
+                dense_nondense[node] = "dense"
+            else:
+                dense_nondense[node] = "non-dense"
+
+    return dense_nondense, dense_nondense_coms
+
+
+def mapping(gt_communities: list, pred_coms: list):
+    """
+
+    :param gt_communities:
+    :param pred_coms:
+    :return achieved_distribution:
+    :return mapping_list:
+    """
+    achieved_distribution = []
+    mapping_list = []
+    for idx, real_com in enumerate(gt_communities):
+        most_similar_community_idx = find_max_jaccard(
+            real_com=real_com, pred_coms=pred_coms
+        )
+        num_correct_nodes = len(
+            set(pred_coms[most_similar_community_idx]).intersection(set(real_com))
+        )
+        achieved_distribution.append(num_correct_nodes)
+        mapping_list.append(most_similar_community_idx)
+    return achieved_distribution, mapping_list
+
+
+def jaccard_similarity(com1: list, com2: list):
+    """
+
+    :param com1:
+    :param com2:
+    :return:
+    """
+    return len(set(com1).intersection(com2)) / len(set(com1).union(com2))
+
+
+def find_max_jaccard(real_com: list, pred_coms: list):
+    """
+
+    :param real_com:
+    :param pred_coms:
+    :return:
+    """
+    jaccard_score = 0
+    most_similar_community = None
+    for idx, predicted_community in enumerate(pred_coms):
+        if jaccard_similarity(real_com, predicted_community) > jaccard_score:
+            jaccard_score = jaccard_similarity(real_com, predicted_community)
+            most_similar_community = idx
+
+    return most_similar_community
+
+
+def split_distribution(distribution: list, comm_types: list):
+    """
+
+    :param distribution:
+    :param comm_types:
+    :return:
+    """
+    dist_small = []
+    dist_large = []
+    for com_idx, small_large in enumerate(comm_types):
+        if small_large == "large":
+            dist_large.append(distribution[com_idx])
+        else:  # small
+            dist_small.append(distribution[com_idx])
+    return dist_small, dist_large
+
+
+def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list: list):
+    n = sum([len(com) for com in gt_communities])
+    y_true = [None] * n
+    y_pred = [None] * n
+
+    for com, nodes in enumerate(gt_communities):
+        for node in nodes:
+            y_true[node] = com
+
+    # It can occur that a predicted community is never most similar to a ground-truth community
+    # In this case, # TODO: What do we do when this happens?
+    for com, nodes in enumerate(pred_coms):
+        for node in nodes:
+            y_pred[node] = mapping_list.index(com)
+
+    return y_true, y_pred

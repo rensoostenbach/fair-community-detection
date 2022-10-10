@@ -3,11 +3,9 @@ import typing
 import networkx as nx
 import random
 from itertools import product
-
 import numpy as np
 
-from metrics.own_metric import fair_unfair_nodes, fairness_gt
-from utils import draw_graph
+from utils import draw_graph, small_large_communities, dense_nondense_communities
 
 
 def create_two_community_graphs(num_nodes_G1: int, num_nodes_G2: int):
@@ -16,6 +14,7 @@ def create_two_community_graphs(num_nodes_G1: int, num_nodes_G2: int):
 
     :param num_nodes_G1: Number of nodes in the first graph
     :param num_nodes_G2: Number of nodes in the second graph
+    :param mu_density: Whether we are varying in mu or density
     :return: Both connected graphs as NetworkX Graphs
     """
     connected_G1 = nx.complete_graph(num_nodes_G1)
@@ -78,15 +77,19 @@ def varying_mu_values(
     """
     This function is used for generating networks with varying mu values and pre-specified community sizes
     for two communities only.
+    Difference between mu here and mu in LFR benchmark is as follows:
+    Mu here considers the total amount of edges in the graph,
+    while mu in the LFR benchmark considers inter-community edges incident to each node.
+
+    TODO: Think about whether I should do mu exactly the same in LFR (if possible)
 
     :param num_nodes_G1: Number of nodes in the first community
     :param num_nodes_G2: Number of nodes in the second community
-    :param mus: The mu values we want to iterate over
-    :return: Calls calculate_fairness_metric(G) which will print fairness metric per mu value
+    :param mus: Fractions of inter-community edges, NOT exactly the same as in the LFR benchmark!
+    :return graphs: List of all generated graphs
     """
+    graphs = []
     for mu in mus:
-        print(f"Running with mu = {mu}")
-
         connected_G1, connected_G2 = create_two_community_graphs(
             num_nodes_G1=num_nodes_G1, num_nodes_G2=num_nodes_G2
         )
@@ -97,8 +100,8 @@ def varying_mu_values(
         G = add_inter_community_edges(
             G=G, G1_nodes=list(G1.nodes), G2_nodes=list(G2.nodes), mu=mu
         )
-
-        calculate_fairness_metric(G)
+        graphs.append(G)
+    return graphs
 
 
 def varying_denseness(
@@ -112,16 +115,17 @@ def varying_denseness(
     A denseness value of 1 means that every node in a community is connected to every other node
     in the same community, and lower means that a part of the intra-community edges has been removed.
 
+    TODO: Think about which LFR parameter this relates to, and whether it should be changed to make it the same as LFR
+
     :param num_nodes: Number of nodes in both communities (always the same for now)
     :param densenesses_G1: The denseness of the first community
     :param densenesses_G2: The denseness of the second community
     :param inter_community_edges: Fraction of inter-community edges
-    :return: Calls calculate_fairness_metric(G) which will print fairness metric
+    :return graphs: List of all generated graphs
     """
+    graphs = []
     for denseness_G1 in densenesses_G1:
         for denseness_G2 in densenesses_G2:
-            print(f"Denseness G1: {denseness_G1}, denseness G2: {denseness_G2}")
-
             connected_G1, connected_G2 = create_two_community_graphs(
                 num_nodes_G1=num_nodes, num_nodes_G2=num_nodes
             )
@@ -136,29 +140,41 @@ def varying_denseness(
                 G2_nodes=list(G2.nodes),
                 mu=inter_community_edges,
             )
+            graphs.append(G)
+    return graphs
 
-            calculate_fairness_metric(G)
 
-
-def calculate_fairness_metric(G: nx.Graph):
+def mislabel_nodes(G: nx.Graph, num_nodes: int, where_to_mislabel: str, size_percentile=90, density_cutoff=0.5):
     """
-    Calculate and print out the fairness metric for a given graph with communities.
 
-    :param G: The NetworkX Graph with communities we want to compute the fairness for
-    :return: Prints out the fairness metric for the given graph
+    :param G:
+    :param num_nodes: Integer number of nodes to mislabel
+    :param where_to_mislabel:
+    :param size_percentile:
+    :param density_cutoff:
+    :return:
     """
-    try:
-        communities = {frozenset(G.nodes[v]["community"]) for v in G}
-        gt_communities = list(communities)
-
-        #  Not important drawing stuff, just for myself
-        pos = nx.spring_layout(G)  # compute graph layout
-        draw_graph(G, pos=pos, communities=communities)
-
-        fair_nodes, unfair_nodes = fair_unfair_nodes(G, gt_communities)
-        print(
-            f"Fairness metric: {fairness_gt(fair_nodes=fair_nodes, unfair_nodes=unfair_nodes)} \n"
+    communities = list({frozenset(G.nodes[v]["community"]) for v in G})
+    if where_to_mislabel in ["small", "large"]:
+        node_comm_types, comm_types = small_large_communities(
+            communities=communities, percentile=size_percentile
+        )
+    else:  # dense or non-dense
+        node_comm_types, comm_types = dense_nondense_communities(
+            G=G, communities=communities, cutoff=density_cutoff
         )
 
-    except TypeError:  # Occurs when the ValueError in add_inter_community_edges is triggered
-        pass
+    comm_to_mislabel = comm_types.index(where_to_mislabel)
+    # Randomly sample num_nodes that need to be mislabeled
+    nodes_to_mislabel = random.sample(communities[comm_to_mislabel], k=num_nodes)
+    del communities[comm_to_mislabel]  # Remove the original community from communities
+    # Now communities[0] will always be the new community for the set of nodes that will be mislabeled
+    new_community = set(nodes_to_mislabel).union(set(list(communities[0])))
+    for node in G.nodes:
+        if node in new_community:
+            G.nodes[node]['community'] = new_community
+        else:
+            for wrong_node in nodes_to_mislabel:
+                G.nodes[node]['community'].remove(wrong_node)
+
+    return G
