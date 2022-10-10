@@ -168,9 +168,16 @@ def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list
             y_true[node] = com
 
     # It can occur that a predicted community is never most similar to a ground-truth community
-    # In this case, # TODO: What do we do when this happens?
+    # In this case, # TODO: What do we do when this happens? --> We keep that label and make sure that f1_score labels parameter does not have that label
+
+    # It can also occur that a predicted community is most similar with multiple ground-truth communities
+    # In this case, we simply that the ground-truth community that comes first in mapping_list
+
     for com, nodes in enumerate(pred_coms):
         for node in nodes:
-            y_pred[node] = mapping_list.index(com)
+            try:
+                y_pred[node] = mapping_list.index(com)
+            except ValueError:
+                y_pred[node] = com
 
     return y_true, y_pred
