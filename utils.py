@@ -103,14 +103,14 @@ def mapping(gt_communities: list, pred_coms: list):
     achieved_distribution = []
     mapping_list = []
     for idx, real_com in enumerate(gt_communities):
-        most_similar_community_idx = find_max_jaccard(
+        most_similar_community_idx, jaccard_score = find_max_jaccard(
             real_com=real_com, pred_coms=pred_coms
         )
         num_correct_nodes = len(
             set(pred_coms[most_similar_community_idx]).intersection(set(real_com))
         )
         achieved_distribution.append(num_correct_nodes)
-        mapping_list.append(most_similar_community_idx)
+        mapping_list.append((most_similar_community_idx, jaccard_score))
     return achieved_distribution, mapping_list
 
 
@@ -138,7 +138,7 @@ def find_max_jaccard(real_com: list, pred_coms: list):
             jaccard_score = jaccard_similarity(real_com, predicted_community)
             most_similar_community = idx
 
-    return most_similar_community
+    return most_similar_community, jaccard_score
 
 
 def split_distribution(distribution: list, comm_types: list):
@@ -168,15 +168,16 @@ def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list
             y_true[node] = com
 
     # It can occur that a predicted community is never most similar to a ground-truth community
-    # In this case, # TODO: What do we do when this happens? --> We keep that label and make sure that f1_score labels parameter does not have that label
+    # In this case, we keep that label and make sure that f1_score labels parameter does not have that label
 
     # It can also occur that a predicted community is most similar with multiple ground-truth communities
     # In this case, we simply that the ground-truth community that comes first in mapping_list
 
+    mapping_list_coms = [x[0] for x in mapping_list]  # Only retrieve the communities, not the jaccard scores
     for com, nodes in enumerate(pred_coms):
         for node in nodes:
             try:
-                y_pred[node] = mapping_list.index(com)
+                y_pred[node] = mapping_list_coms.index(com)
             except ValueError:
                 y_pred[node] = com
 
