@@ -111,6 +111,8 @@ def mapping(gt_communities: list, pred_coms: list):
         )
         achieved_distribution.append(num_correct_nodes)
         mapping_list.append((most_similar_community_idx, jaccard_score))
+
+    # TODO: Maybe change mapping_list such that we do as we told Akrati, wait for her response.
     return achieved_distribution, mapping_list
 
 
@@ -171,6 +173,7 @@ def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list
     # In this case, we keep that label and make sure that f1_score labels parameter does not have that label
 
     # It can also occur that a predicted community is most similar with multiple ground-truth communities
+    # TODO: Transform mapping_list such that we do as we told Akrati? Wait for her response
     # In this case, we simply that the ground-truth community that comes first in mapping_list
 
     mapping_list_coms = [x[0] for x in mapping_list]  # Only retrieve the communities, not the jaccard scores
