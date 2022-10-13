@@ -62,13 +62,13 @@ def small_large_communities(communities: list, percentile: int):
 
 def dense_nondense_communities(G: nx.Graph, communities: list, cutoff: float):
     """
-    Decide which communities are dense ones and non-dense ones, based on a percentile cutoff value.
+    Decide which communities are dense ones and sparse ones, based on a percentile cutoff value.
 
     :param G: The NetworkX Graph from which we can extract the edges
     :param communities: List of ground-truth communities
     :param cutoff: The cutoff on which the cutoff value is based (0.5 for 50% of intra-community edges)
-    :return dense_nondense: Dictionary indicating per node whether it is in a dense or non-dense community
-    :return dense_nondense_coms: List containing per community whether it is dense or non-dense
+    :return dense_nondense: Dictionary indicating per node whether it is in a dense or sparse community
+    :return dense_nondense_coms: List containing per community whether it is dense or sparse
     """
     intra_com_edges = np.array([G.subgraph(communities[idx]).size() for idx, community in enumerate(communities)])
     # Need to divide above numbers by maximum amount of edges possible in community
@@ -82,14 +82,53 @@ def dense_nondense_communities(G: nx.Graph, communities: list, cutoff: float):
         if densities[idx] >= cutoff:
             dense_nondense_coms.append("dense")
         else:
-            dense_nondense_coms.append("non-dense")
+            dense_nondense_coms.append("sparse")
         for node in community:
             if densities[idx] >= cutoff:
                 dense_nondense[node] = "dense"
             else:
-                dense_nondense[node] = "non-dense"
+                dense_nondense[node] = "sparse"
 
     return dense_nondense, dense_nondense_coms
+
+
+def modify_mapping_list(mapping_list: list):
+    """
+    Modify the mapping list such that a predicted community is not connect to two ground truth communities.
+    Instead, we regard the ground-truth community which is most similar to the predicted community as the right one, and
+    regard all other ground-truth communities that are mapped to that predicted community as completely misclassified.
+
+    :param mapping_list: List of tuples where x[0] indicates the predicted community and x[1] the Jaccard score
+    :return most_similar_pred_coms: List of most similar predicted communities, -1 in case of not being the most
+                                    similar ground-truth community to a predicted community.
+    """
+
+    most_similar_pred_coms = [x[0] for x in mapping_list]
+    jaccards = [x[1] for x in mapping_list]
+    seen = set()
+    duplicates = []
+    if len(set(most_similar_pred_coms)) < len(most_similar_pred_coms):  # There are duplicates that need to be handled
+        for com in most_similar_pred_coms:
+            if com in seen:
+                duplicates.append(com)
+            else:
+                seen.add(com)
+        for duplicate in set(duplicates):  # Process every duplicate
+            indices = set([i for i, x in enumerate(most_similar_pred_coms) if x == duplicate])  # Get the idx of duplicates
+            max_jaccard = 0
+            for index in indices:
+                if jaccards[index] > max_jaccard:
+                    max_jaccard = jaccards[index]
+                # Find the index that max jaccard belongs to, and set the most similar pred com to -1 for the others
+            max_jaccard_index = jaccards.index(max_jaccard)
+            indices.remove(max_jaccard_index)
+            for index in indices:
+                most_similar_pred_coms[index] = -1
+
+    else:
+        return most_similar_pred_coms
+
+    return most_similar_pred_coms
 
 
 def mapping(gt_communities: list, pred_coms: list):
@@ -98,7 +137,7 @@ def mapping(gt_communities: list, pred_coms: list):
     :param gt_communities:
     :param pred_coms:
     :return achieved_distribution:
-    :return mapping_list:
+    :return mapping_list: Index indicates gt-community and value indicates the pred comm that is most similar
     """
     achieved_distribution = []
     mapping_list = []
@@ -112,7 +151,12 @@ def mapping(gt_communities: list, pred_coms: list):
         achieved_distribution.append(num_correct_nodes)
         mapping_list.append((most_similar_community_idx, jaccard_score))
 
-    # TODO: Maybe change mapping_list such that we do as we told Akrati, wait for her response.
+    mapping_list = modify_mapping_list(mapping_list=mapping_list)
+    # Change the achieved_distribution such that it becomes 0 in the places where mapping_list == -1
+    gt_comm_misclassified_indices = [i for i, x in enumerate(mapping_list) if x == -1]
+    for index in gt_comm_misclassified_indices:
+        achieved_distribution[index] = 0
+
     return achieved_distribution, mapping_list
 
 
@@ -143,21 +187,23 @@ def find_max_jaccard(real_com: list, pred_coms: list):
     return most_similar_community, jaccard_score
 
 
-def split_distribution(distribution: list, comm_types: list):
+def split_types(distribution_fraction: list, comm_types: list):
     """
 
-    :param distribution:
+    :param distribution_fraction:
     :param comm_types:
     :return:
     """
-    dist_small = []
-    dist_large = []
-    for com_idx, small_large in enumerate(comm_types):
-        if small_large == "large":
-            dist_large.append(distribution[com_idx])
-        else:  # small
-            dist_small.append(distribution[com_idx])
-    return dist_small, dist_large
+    
+    type1 = []
+    type2 = []
+    unique_comm_types = np.unique(comm_types)
+    for com_idx, comm_type in enumerate(comm_types):
+        if comm_type == unique_comm_types[0]:
+            type1.append(distribution_fraction[com_idx])
+        else:
+            type2.append(distribution_fraction[com_idx])
+    return type1, type2
 
 
 def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list: list):
@@ -170,18 +216,17 @@ def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list
             y_true[node] = com
 
     # It can occur that a predicted community is never most similar to a ground-truth community
-    # In this case, we keep that label and make sure that f1_score labels parameter does not have that label
+    # In this case, we label all the nodes in those predicted communities with -1 (ValueError part)
 
     # It can also occur that a predicted community is most similar with multiple ground-truth communities
-    # TODO: Transform mapping_list such that we do as we told Akrati? Wait for her response
-    # In this case, we simply that the ground-truth community that comes first in mapping_list
+    # In this case, mapping_list will have a -1 value for the ground-truth communities that are not most similar
+    # with that predicted community
 
-    mapping_list_coms = [x[0] for x in mapping_list]  # Only retrieve the communities, not the jaccard scores
     for com, nodes in enumerate(pred_coms):
         for node in nodes:
             try:
-                y_pred[node] = mapping_list_coms.index(com)
+                y_pred[node] = mapping_list.index(com)
             except ValueError:
-                y_pred[node] = com
+                y_pred[node] = -1
 
     return y_true, y_pred

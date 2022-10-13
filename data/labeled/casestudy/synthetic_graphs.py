@@ -161,7 +161,7 @@ def mislabel_nodes(G: nx.Graph, num_nodes: int, where_to_mislabel: str, size_per
         node_comm_types, comm_types = small_large_communities(
             communities=communities, percentile=size_percentile
         )
-    else:  # dense or non-dense
+    else:  # dense or sparse
         node_comm_types, comm_types = dense_nondense_communities(
             G=G, communities=communities, cutoff=density_cutoff
         )
