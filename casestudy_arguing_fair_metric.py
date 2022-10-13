@@ -42,7 +42,7 @@ for G in graphs:
     pos = nx.spring_layout(G)  # compute graph layout
     draw_graph(G, pos=pos, communities=communities)
 
-    # TODO: Rewrite mislabel_nodes
+    # TODO: Rewrite mislabel_nodes so we can mislabel two community types at the same time instead of two separate calls
     G_mislabeled = mislabel_nodes(G=G, num_nodes=3, where_to_mislabel="sparse", density_cutoff=density_cutoff)
     mislabeled_communities = {frozenset(G_mislabeled.nodes[v]["community"]) for v in G_mislabeled}
 

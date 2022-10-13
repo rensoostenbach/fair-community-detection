@@ -149,7 +149,7 @@ def varying_denseness(
 def mislabel_nodes(G: nx.Graph, num_nodes: int, where_to_mislabel: str, size_percentile=90, density_cutoff=0.5):
     """
     TODO: Rewrite this function such that num_nodes and where_to_mislabel become a dictionary
-     that indicates per type how many to remove
+     that indicates per type how many to remove so we don't need two calls of this function
     :param G:
     :param num_nodes: Integer number of nodes to mislabel
     :param where_to_mislabel:
