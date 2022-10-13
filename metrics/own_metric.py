@@ -7,7 +7,7 @@ from utils import (
     mapping,
     small_large_communities,
     dense_nondense_communities,
-    split_distribution,
+    split_types,
     transform_to_ytrue_ypred,
 )
 
@@ -29,63 +29,35 @@ def fairness_score(type1_score: float, type2_score: float):
         return abs(type1_score - type2_score) / (type1_score + type2_score)
 
 
-def accuracy_fairness(
-    achieved_fractions: list,
-    achieved_fractions_type1: list,
-    achieved_fractions_type2: list,
-):
-    """
-
-    :param achieved_fractions:
-    :param achieved_fractions_type1:
-    :param achieved_fractions_type2:
-    :return:
-    """
-    simple_fairness_metric = np.average(achieved_fractions)
-    simple_fairness_metric_types = fairness_score(
-        type1_score=np.average(achieved_fractions_type1),
-        type2_score=np.average(achieved_fractions_type2),
-    )
-    print(f"Accuracy fairness overall: {simple_fairness_metric}")
-    print(f"Accuracy fairness compared: {simple_fairness_metric_types}")
-
-
-def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):  # TODO:
-    # Not sure if I should use sklearn implementation, or simply build a confusion matrix myself
-    # to calculate the harmonic mean of precision and recall
-
+def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
     # Using sklearn implementation requires me to write some code te get y_true and y_pred
     y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping_list)
 
-    # The above procedure results in some ground-truth communities having a score of 0,
-    # and I'm not sure if that is correct
-
-    # The procedure I describe at the top of the function might not have this behavior, I should check that
-
-    return f1_score(y_true, y_pred, average=None, labels=list(range(len(gt_communities))))
+    return f1_score(
+        y_true, y_pred, average=None, labels=list(range(len(gt_communities)))
+    )
 
 
-def emd_fairness(
-    real_fractions: list,
-    achieved_fractions: list,
-    real_fractions_type1: list,
-    real_fractions_type2: list,
-    achieved_fractions_type1: list,
-    achieved_fractions_type2: list,
-):
+def score_per_comm_to_fairness(score_per_comm: list, comm_types: list):
+    type1_score, type2_score = split_types(score_per_comm, comm_types=comm_types)
+    return fairness_score(type1_score=np.average(type1_score), type2_score=np.average(type2_score))
+
+
+def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: list):
     """
-
+    TODO: Not sure if EMD fairness should use fractions or distributions. Check if it makes a big difference
     :param real_fractions:
     :param achieved_fractions:
-    :param real_fractions_type1:
-    :param real_fractions_type2:
-    :param achieved_fractions_type1:
-    :param achieved_fractions_type2:
+    :param comm_types:
     :return:
     """
-    # Same as accuracy fairness
-    fairness_emd = 1 - wasserstein_distance(
-        u_values=real_fractions, v_values=achieved_fractions
+    real_fractions_type1, real_fractions_type2 = split_types(
+        distribution_fraction=real_fractions,
+        comm_types=comm_types,
+    )
+    achieved_fractions_type1, achieved_fractions_type2 = split_types(
+        distribution_fraction=achieved_fractions,
+        comm_types=comm_types,
     )
 
     fairness_emd_type1 = wasserstein_distance(
@@ -95,12 +67,11 @@ def emd_fairness(
         u_values=real_fractions_type2, v_values=achieved_fractions_type2
     )
 
-    fairness_emd_types = fairness_score(
+    score = fairness_score(
         type1_score=fairness_emd_type1, type2_score=fairness_emd_type2
     )
 
-    print(f"EMD fairness overall: {fairness_emd}")
-    print(f"EMD fairness compared: {fairness_emd_types}")
+    return score
 
 
 def calculate_fairness_metrics(
@@ -132,49 +103,37 @@ def calculate_fairness_metrics(
     achieved_fractions = list(
         np.array(achieved_distribution) / np.array(real_distribution)
     )
+    print(f"Real distribution:     {real_distribution}")
+    print(f"Achieved distribution: {achieved_distribution}")
 
     # Decide which type of fairness we are looking into
     if fairness_type == "small_large":
         node_comm_types, comm_types = small_large_communities(
             communities=gt_communities, percentile=size_percentile
         )
-    else:  # fairness_type == "density" --> Perhaps TODO: Add a third option for fairness type
+    else:  # fairness_type == "density" -->  TODO Perhaps: Add a third option for fairness type
         node_comm_types, comm_types = dense_nondense_communities(
             G=G, communities=gt_communities, cutoff=density_cutoff
         )
 
-    real_dist_type1, real_dist_type2 = split_distribution(
-        distribution=real_distribution,
+    f1_per_comm = f1_fairness(
+        gt_communities=gt_communities,
+        pred_coms=pred_communities,
+        mapping_list=mapping_list,
+    )
+
+    emd_fairness_score = emd_fairness(
+        real_fractions=real_distribution,
+        achieved_fractions=achieved_distribution,
         comm_types=comm_types,
     )
-    achieved_dist_type1, achieved_dist_type2 = split_distribution(
-        distribution=achieved_distribution,
-        comm_types=comm_types,
+    f1_fairness_score = score_per_comm_to_fairness(
+        score_per_comm=f1_per_comm, comm_types=comm_types
+    )
+    accuracy_fairness_score = score_per_comm_to_fairness(
+        score_per_comm=achieved_fractions, comm_types=comm_types
     )
 
-    real_fractions_type1 = [1] * len(real_dist_type1)
-    real_fractions_type2 = [1] * len(real_dist_type2)
-
-    achieved_fractions_type1 = list(
-        np.array(achieved_dist_type1) / np.array(real_dist_type1)
-    )
-    achieved_fractions_type2 = list(
-        np.array(achieved_dist_type2) / np.array(real_dist_type2)
-    )
-
-    accuracy_fairness(
-        achieved_fractions=achieved_fractions,
-        achieved_fractions_type1=achieved_fractions_type1,
-        achieved_fractions_type2=achieved_fractions_type2,
-    )
-    test = f1_fairness(gt_communities=gt_communities, pred_coms=pred_communities, mapping_list=mapping_list)
-    emd_fairness(
-        real_fractions=real_fractions,
-        achieved_fractions=achieved_fractions,
-        real_fractions_type1=real_fractions_type1,
-        real_fractions_type2=real_fractions_type2,
-        achieved_fractions_type1=achieved_fractions_type1,
-        achieved_fractions_type2=achieved_fractions_type2,
-    )
-
-    return node_comm_types
+    print(f"EMD Fairness score: {emd_fairness_score}")
+    print(f"F1 Fairness score: {f1_fairness_score}")
+    print(f"Accuracy Fairness score: {accuracy_fairness_score}")

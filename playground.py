@@ -21,21 +21,19 @@ communities = {frozenset(G.nodes[v]["community"]) for v in G}
 gt_communities = list(communities)
 
 # CD part
-pred_coms = algorithms.louvain(g_original=G)
+pred_coms = algorithms.louvain(g_original=G, randomize=0)
 
 #  Not important drawing stuff, just for myself
 # pos = nx.spring_layout(G)  # compute graph layout
 # draw_graph(G, pos=pos, communities=communities)
 
-print(
-    calculate_fairness_metrics(
+calculate_fairness_metrics(
         G=G,
         gt_communities=gt_communities,
         pred_communities=pred_coms.communities,
         fairness_type="small_large",
         size_percentile=90,
     )
-)
 
 print(f"Purity: {purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}")
 print(

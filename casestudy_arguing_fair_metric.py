@@ -42,18 +42,16 @@ for G in graphs:
     pos = nx.spring_layout(G)  # compute graph layout
     draw_graph(G, pos=pos, communities=communities)
 
-    G_mislabeled = mislabel_nodes(G=G, num_nodes=3, where_to_mislabel="non-dense", density_cutoff=density_cutoff)
+    G_mislabeled = mislabel_nodes(G=G, num_nodes=3, where_to_mislabel="sparse", density_cutoff=density_cutoff)
     mislabeled_communities = {frozenset(G_mislabeled.nodes[v]["community"]) for v in G_mislabeled}
 
     #  Not important drawing stuff, just for myself
     draw_graph(G_mislabeled, pos=pos, communities=mislabeled_communities)
 
-    print(
-        calculate_fairness_metrics(
+    calculate_fairness_metrics(
             G=G,
             gt_communities=gt_communities,
             pred_communities=list(mislabeled_communities),
             fairness_type="density",
             density_cutoff=density_cutoff
         )
-    )
