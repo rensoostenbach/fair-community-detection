@@ -47,7 +47,6 @@ def score_per_comm_to_fairness(score_per_comm: list, comm_types: list):
 
 def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: list):
     """
-    TODO: Not sure if EMD fairness should use fractions or distributions. Check if it makes a big difference
     :param real_fractions:
     :param achieved_fractions:
     :param comm_types:

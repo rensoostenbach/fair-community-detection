@@ -81,9 +81,6 @@ def varying_mu_values(
     Mu here considers the total amount of edges in the graph,
     while mu in the LFR benchmark considers inter-community edges incident to each node.
 
-    TODO: Think about whether I should do mu exactly the same in LFR (if possible)
-    Not doing that for now, see my notes in Obsidian on LFR benchmark graphs
-
     :param num_nodes_G1: Number of nodes in the first community
     :param num_nodes_G2: Number of nodes in the second community
     :param mus: Fractions of inter-community edges, NOT exactly the same as in the LFR benchmark!
