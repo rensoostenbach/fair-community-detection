@@ -7,11 +7,16 @@ from utils import draw_graph
 
 
 def print_densities(graph: nx.Graph, communities: list):
-    intra_com_edges = np.array([graph.subgraph(communities[idx]).size() for idx, community in enumerate(communities)])
+    intra_com_edges = np.array(
+        [
+            graph.subgraph(communities[idx]).size()
+            for idx, community in enumerate(communities)
+        ]
+    )
     # Need to divide above numbers by maximum amount of edges possible in community
     sizes = [len(community) for community in communities]
     max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
-    densities = np.array(intra_com_edges/max_possible_edges)
+    densities = np.array(intra_com_edges / max_possible_edges)
     print(f"Densities of these communities: {densities}")
 
 
@@ -117,7 +122,9 @@ for tau2 in tau2s:
 
     communities = {frozenset(G.nodes[v]["community"]) for v in G}
     gt_communities = list(communities)
-    print(f"There are {len(gt_communities)} communities in this setup when tau2={tau2}.")
+    print(
+        f"There are {len(gt_communities)} communities in this setup when tau2={tau2}."
+    )
     print(f"Sizes of these communities: {[len(comm) for comm in gt_communities]}")
 
     #  Not important drawing stuff, just for myself

@@ -19,13 +19,15 @@ mus = np.linspace(0.01, 0.5, 15)
 
 
 # Varying denseness between two communities
-num_nodes = 15
-densenesses_G1 = [0.7, 0.8, 0.9]
-densenesses_G2 = [0.25, 0.35, 0.45]
-density_cutoff = 0.5
-inter_community_edges = 0.1
+num_dense_nodes = 25
+num_sparse_nodes = 50
+densenesses_G1 = [0.3]
+densenesses_G2 = [0.1]
+density_cutoff = 0.2
+inter_community_edges = 0.05
 graphs = varying_denseness(
-    num_nodes=num_nodes,
+    num_nodes_G1=num_dense_nodes,
+    num_nodes_G2=num_sparse_nodes,
     densenesses_G1=densenesses_G1,
     densenesses_G2=densenesses_G2,
     inter_community_edges=inter_community_edges,
@@ -42,17 +44,21 @@ for G in graphs:
     pos = nx.spring_layout(G)  # compute graph layout
     draw_graph(G, pos=pos, communities=communities)
 
-    # TODO: Rewrite mislabel_nodes so we can mislabel two community types at the same time instead of two separate calls
-    G_mislabeled = mislabel_nodes(G=G, num_nodes=3, where_to_mislabel="sparse", density_cutoff=density_cutoff)
-    mislabeled_communities = {frozenset(G_mislabeled.nodes[v]["community"]) for v in G_mislabeled}
+    mislabel_comm_nodes = {"random": 10}
+    G_mislabeled = mislabel_nodes(
+        G=G, mislabel_comm_nodes=mislabel_comm_nodes, density_cutoff=density_cutoff
+    )
+    mislabeled_communities = {
+        frozenset(G_mislabeled.nodes[v]["community"]) for v in G_mislabeled
+    }
 
     #  Not important drawing stuff, just for myself
     draw_graph(G_mislabeled, pos=pos, communities=mislabeled_communities)
 
     calculate_fairness_metrics(
-            G=G,
-            gt_communities=gt_communities,
-            pred_communities=list(mislabeled_communities),
-            fairness_type="density",
-            density_cutoff=density_cutoff
-        )
+        G=G,
+        gt_communities=gt_communities,
+        pred_communities=list(mislabeled_communities),
+        fairness_type="density",
+        density_cutoff=density_cutoff,
+    )

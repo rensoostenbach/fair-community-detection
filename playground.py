@@ -28,12 +28,12 @@ pred_coms = algorithms.louvain(g_original=G, randomize=0)
 # draw_graph(G, pos=pos, communities=communities)
 
 calculate_fairness_metrics(
-        G=G,
-        gt_communities=gt_communities,
-        pred_communities=pred_coms.communities,
-        fairness_type="small_large",
-        size_percentile=90,
-    )
+    G=G,
+    gt_communities=gt_communities,
+    pred_communities=pred_coms.communities,
+    fairness_type="small_large",
+    size_percentile=90,
+)
 
 print(f"Purity: {purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}")
 print(
