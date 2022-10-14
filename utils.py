@@ -70,11 +70,16 @@ def dense_nondense_communities(G: nx.Graph, communities: list, cutoff: float):
     :return dense_nondense: Dictionary indicating per node whether it is in a dense or sparse community
     :return dense_nondense_coms: List containing per community whether it is dense or sparse
     """
-    intra_com_edges = np.array([G.subgraph(communities[idx]).size() for idx, community in enumerate(communities)])
+    intra_com_edges = np.array(
+        [
+            G.subgraph(communities[idx]).size()
+            for idx, community in enumerate(communities)
+        ]
+    )
     # Need to divide above numbers by maximum amount of edges possible in community
     sizes = [len(community) for community in communities]
     max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
-    densities = np.array(intra_com_edges/(max_possible_edges))
+    densities = np.array(intra_com_edges / (max_possible_edges))
     dense_nondense = {}
     dense_nondense_coms = []
 
@@ -107,14 +112,18 @@ def modify_mapping_list(mapping_list: list):
     jaccards = [x[1] for x in mapping_list]
     seen = set()
     duplicates = []
-    if len(set(most_similar_pred_coms)) < len(most_similar_pred_coms):  # There are duplicates that need to be handled
+    if len(set(most_similar_pred_coms)) < len(
+        most_similar_pred_coms
+    ):  # There are duplicates that need to be handled
         for com in most_similar_pred_coms:
             if com in seen:
                 duplicates.append(com)
             else:
                 seen.add(com)
         for duplicate in set(duplicates):  # Process every duplicate
-            indices = set([i for i, x in enumerate(most_similar_pred_coms) if x == duplicate])  # Get the idx of duplicates
+            indices = set(
+                [i for i, x in enumerate(most_similar_pred_coms) if x == duplicate]
+            )  # Get the idx of duplicates
             max_jaccard = 0
             for index in indices:
                 if jaccards[index] > max_jaccard:
@@ -194,7 +203,7 @@ def split_types(distribution_fraction: list, comm_types: list):
     :param comm_types:
     :return:
     """
-    
+
     type1 = []
     type2 = []
     unique_comm_types = np.unique(comm_types)

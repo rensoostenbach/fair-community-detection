@@ -40,7 +40,9 @@ def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
 
 def score_per_comm_to_fairness(score_per_comm: list, comm_types: list):
     type1_score, type2_score = split_types(score_per_comm, comm_types=comm_types)
-    return fairness_score(type1_score=np.average(type1_score), type2_score=np.average(type2_score))
+    return fairness_score(
+        type1_score=np.average(type1_score), type2_score=np.average(type2_score)
+    )
 
 
 def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: list):
@@ -123,8 +125,8 @@ def calculate_fairness_metrics(
     )
 
     emd_fairness_score = emd_fairness(
-        real_fractions=real_distribution,
-        achieved_fractions=achieved_distribution,
+        real_fractions=real_fractions,
+        achieved_fractions=achieved_fractions,
         comm_types=comm_types,
     )
     f1_fairness_score = score_per_comm_to_fairness(
