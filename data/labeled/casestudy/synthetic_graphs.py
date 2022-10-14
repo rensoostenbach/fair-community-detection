@@ -146,38 +146,55 @@ def varying_denseness(
     return graphs
 
 
-def mislabel_nodes(G: nx.Graph, num_nodes: int, where_to_mislabel: str, size_percentile=90, density_cutoff=0.5):
+def mislabel_nodes(G: nx.Graph, mislabel_comm_nodes: dict, size_percentile=90, density_cutoff=0.5):
     """
+    Pretty sure this function only works for two communities because of comm_types.index(comm_type) call
     TODO: Rewrite this function such that num_nodes and where_to_mislabel become a dictionary
      that indicates per type how many to remove so we don't need two calls of this function
     :param G:
-    :param num_nodes: Integer number of nodes to mislabel
-    :param where_to_mislabel:
+    :param mislabel_comm_nodes: Dict of community types and number of nodes to mislabel
     :param size_percentile:
     :param density_cutoff:
     :return:
     """
     communities = list({frozenset(G.nodes[v]["community"]) for v in G})
-    if where_to_mislabel in ["small", "large"]:
+    where_to_mislabel = set(mislabel_comm_nodes.keys())
+    if len(where_to_mislabel.intersection({"small", "large"})) > 0:
         node_comm_types, comm_types = small_large_communities(
             communities=communities, percentile=size_percentile
         )
-    else:  # dense or sparse
+    elif len(where_to_mislabel.intersection({"sparse", "dense"})) > 0:  # dense or sparse
         node_comm_types, comm_types = dense_nondense_communities(
             G=G, communities=communities, cutoff=density_cutoff
         )
+    else:  # random
+        num_nodes = mislabel_comm_nodes["random"]
+        random_nodes = random.sample(G.nodes, k=num_nodes)
+        for random_node in random_nodes:
+            node_old_community = G.nodes[random_node]["community"]
+            node_old_community_removed = node_old_community.difference({random_node})
+            node_new_community = set(G.nodes).difference(node_old_community_removed)
+            for node in node_old_community_removed:
+                G.nodes[node]['community'] = node_old_community_removed
+            for node in node_new_community:
+                G.nodes[node]['community'] = node_new_community
+        return G
 
-    comm_to_mislabel = comm_types.index(where_to_mislabel)
-    # Randomly sample num_nodes that need to be mislabeled
-    nodes_to_mislabel = random.sample(communities[comm_to_mislabel], k=num_nodes)
-    del communities[comm_to_mislabel]  # Remove the original community from communities
-    # Now communities[0] will always be the new community for the set of nodes that will be mislabeled
-    new_community = set(nodes_to_mislabel).union(set(list(communities[0])))
-    for node in G.nodes:
-        if node in new_community:
-            G.nodes[node]['community'] = new_community
-        else:
-            for wrong_node in nodes_to_mislabel:
-                G.nodes[node]['community'].remove(wrong_node)
+    for comm_type in where_to_mislabel:
+        communities = list({frozenset(G.nodes[v]["community"]) for v in G})
+        comm_to_mislabel = comm_types.index(comm_type)
+        # Randomly sample num_nodes that need to be mislabeled
+        nodes_to_mislabel = random.sample(communities[comm_to_mislabel], k=mislabel_comm_nodes[comm_type])
+        other_community = communities[1-comm_to_mislabel]  # Get the other community
+        # Now other_community will always be the new community for the set of nodes that will be mislabeled
+        new_community_original_nodes = set(nodes_to_mislabel).union(set(other_community))
+
+        new_community_mislabeled_nodes = set(communities[comm_to_mislabel]).difference(set(nodes_to_mislabel))
+
+        for node in G.nodes:
+            if node in new_community_original_nodes:
+                G.nodes[node]['community'] = new_community_original_nodes
+            else:  # Mislabeled nodes
+                G.nodes[node]['community'] = new_community_mislabeled_nodes
 
     return G
