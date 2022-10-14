@@ -5,6 +5,12 @@ import matplotlib.pyplot as plt
 
 from utils import draw_graph
 
+""" 
+This playground was used to get a feeling of how the LFR benchmark works.
+By experimenting with this, I found out that it is very sensitive, and I
+will work with the LFR benchmark in a different way than initially thought
+(more detailed notes are in Obsidian)
+"""
 
 def print_densities(graph: nx.Graph, communities: list):
     intra_com_edges = np.array(
