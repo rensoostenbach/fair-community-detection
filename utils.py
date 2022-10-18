@@ -34,6 +34,17 @@ def draw_graph(G: nx.Graph, pos: dict, communities=None):
     plt.show()
 
 
+def plot_fairness(emd: list, f1: list, acc: list, x_axis: list, xlabel: str, title="Fairness scores per ..."):
+    plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
+    plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
+    plt.plot(x_axis, acc, label="Accuracy fairness", marker=".")
+    plt.legend()
+    plt.xlabel(f"{xlabel}")
+    plt.ylabel("Fairness scores")
+    plt.title(f"{title}")
+    plt.show()
+
+
 def small_large_communities(communities: list, percentile: int):
     """
     Decide which communities are small ones and large ones, based on a percentile cutoff value.

@@ -135,6 +135,4 @@ def calculate_fairness_metrics(
         score_per_comm=achieved_fractions, comm_types=comm_types
     )
 
-    print(f"EMD Fairness score: {emd_fairness_score}")
-    print(f"F1 Fairness score: {f1_fairness_score}")
-    print(f"Accuracy Fairness score: {accuracy_fairness_score}")
+    return emd_fairness_score, f1_fairness_score, accuracy_fairness_score
