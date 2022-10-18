@@ -6,7 +6,7 @@ from scipy.stats import wasserstein_distance
 from utils import (
     mapping,
     small_large_communities,
-    dense_nondense_communities,
+    dense_sparse_communities,
     split_types,
     transform_to_ytrue_ypred,
 )
@@ -89,7 +89,7 @@ def calculate_fairness_metrics(
     :param G: The NetworkX graph for which we want to compute the fairness
     :param gt_communities: List of ground-truth communities
     :param pred_communities: List of communities as predicted by CD method
-    :param fairness_type: String indicating small/large, dense/non-dense
+    :param fairness_type: String indicating small_large, density
     :param size_percentile: Integer percentile of the small-large cutoff
     :param density_cutoff: Float from 0 to 1 indication the cutoff ratio for density
     :return:
@@ -113,7 +113,7 @@ def calculate_fairness_metrics(
             communities=gt_communities, percentile=size_percentile
         )
     else:  # fairness_type == "density" -->  TODO Perhaps: Add a third option for fairness type
-        node_comm_types, comm_types = dense_nondense_communities(
+        node_comm_types, comm_types = dense_sparse_communities(
             G=G, communities=gt_communities, cutoff=density_cutoff
         )
 

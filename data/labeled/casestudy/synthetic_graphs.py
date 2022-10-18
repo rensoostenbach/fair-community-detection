@@ -5,7 +5,7 @@ import random
 from itertools import product
 import numpy as np
 
-from utils import draw_graph, small_large_communities, dense_nondense_communities
+from utils import draw_graph, small_large_communities, dense_sparse_communities
 
 
 def create_two_community_graphs(num_nodes_G1: int, num_nodes_G2: int):
@@ -162,7 +162,7 @@ def mislabel_nodes(
     elif (
         len(where_to_mislabel.intersection({"sparse", "dense"})) > 0
     ):  # dense or sparse
-        node_comm_types, comm_types = dense_nondense_communities(
+        node_comm_types, comm_types = dense_sparse_communities(
             G=G, communities=communities, cutoff=density_cutoff
         )
     else:  # random

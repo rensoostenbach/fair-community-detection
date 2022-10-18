@@ -60,15 +60,15 @@ def small_large_communities(communities: list, percentile: int):
     return small_large, small_large_coms
 
 
-def dense_nondense_communities(G: nx.Graph, communities: list, cutoff: float):
+def dense_sparse_communities(G: nx.Graph, communities: list, cutoff: float):
     """
     Decide which communities are dense ones and sparse ones, based on a percentile cutoff value.
 
     :param G: The NetworkX Graph from which we can extract the edges
     :param communities: List of ground-truth communities
     :param cutoff: The cutoff on which the cutoff value is based (0.5 for 50% of intra-community edges)
-    :return dense_nondense: Dictionary indicating per node whether it is in a dense or sparse community
-    :return dense_nondense_coms: List containing per community whether it is dense or sparse
+    :return dense_sparse: Dictionary indicating per node whether it is in a dense or sparse community
+    :return dense_sparse_coms: List containing per community whether it is dense or sparse
     """
     intra_com_edges = np.array(
         [
@@ -80,21 +80,21 @@ def dense_nondense_communities(G: nx.Graph, communities: list, cutoff: float):
     sizes = [len(community) for community in communities]
     max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
     densities = np.array(intra_com_edges / (max_possible_edges))
-    dense_nondense = {}
-    dense_nondense_coms = []
+    dense_sparse = {}
+    dense_sparse_coms = []
 
     for idx, community in enumerate(communities):
         if densities[idx] >= cutoff:
-            dense_nondense_coms.append("dense")
+            dense_sparse_coms.append("dense")
         else:
-            dense_nondense_coms.append("sparse")
+            dense_sparse_coms.append("sparse")
         for node in community:
             if densities[idx] >= cutoff:
-                dense_nondense[node] = "dense"
+                dense_sparse[node] = "dense"
             else:
-                dense_nondense[node] = "sparse"
+                dense_sparse[node] = "sparse"
 
-    return dense_nondense, dense_nondense_coms
+    return dense_sparse, dense_sparse_coms
 
 
 def modify_mapping_list(mapping_list: list):
