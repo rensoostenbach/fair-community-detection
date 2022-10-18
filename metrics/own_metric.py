@@ -72,6 +72,9 @@ def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: lis
         type1_score=fairness_emd_type1, type2_score=fairness_emd_type2
     )
 
+    print(f"Achieved fractions type 1: {np.round(achieved_fractions_type1, 2)}")
+    print(f"Achieved fractions type 2: {np.round(achieved_fractions_type2, 2)}")
+
     return score
 
 
@@ -104,8 +107,6 @@ def calculate_fairness_metrics(
     achieved_fractions = list(
         np.array(achieved_distribution) / np.array(real_distribution)
     )
-    print(f"Real distribution:     {real_distribution}")
-    print(f"Achieved distribution: {achieved_distribution}")
 
     # Decide which type of fairness we are looking into
     if fairness_type == "small_large":

@@ -110,7 +110,7 @@ def dense_sparse_communities(G: nx.Graph, communities: list, cutoff: float):
 
 def modify_mapping_list(mapping_list: list):
     """
-    Modify the mapping list such that a predicted community is not connect to two ground truth communities.
+    Modify the mapping list such that a predicted community is not connected to two ground truth communities.
     Instead, we regard the ground-truth community which is most similar to the predicted community as the right one, and
     regard all other ground-truth communities that are mapped to that predicted community as completely misclassified.
 
