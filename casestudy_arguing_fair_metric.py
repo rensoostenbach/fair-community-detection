@@ -53,7 +53,9 @@ for G in graphs:
         print(f"Number of misclassified nodes: {num_misclassified_nodes}")
         mislabel_comm_nodes = {"sparse": num_misclassified_nodes}
         G_mislabeled = mislabel_nodes(
-            G=copy.deepcopy(G), mislabel_comm_nodes=mislabel_comm_nodes, density_cutoff=density_cutoff
+            G=copy.deepcopy(G),
+            mislabel_comm_nodes=mislabel_comm_nodes,
+            density_cutoff=density_cutoff,
         )
         mislabeled_communities = {
             frozenset(G_mislabeled.nodes[v]["community"]) for v in G_mislabeled
@@ -62,7 +64,11 @@ for G in graphs:
         #  Not important drawing stuff, just for myself
         # draw_graph(G_mislabeled, pos=pos, communities=mislabeled_communities)
 
-        emd_fairness_score, f1_fairness_score, accuracy_fairness_score = calculate_fairness_metrics(
+        (
+            emd_fairness_score,
+            f1_fairness_score,
+            accuracy_fairness_score,
+        ) = calculate_fairness_metrics(
             G=G,
             gt_communities=gt_communities,
             pred_communities=list(mislabeled_communities),
@@ -74,8 +80,14 @@ for G in graphs:
         f1.append(f1_fairness_score)
         acc.append(accuracy_fairness_score)
 
-    plot_fairness(emd=emd, f1=f1, acc=acc, x_axis=misclassified_nodes, xlabel="Number of misclassified nodes",
-                  title="Fairness score per number of misclassified nodes")
+    plot_fairness(
+        emd=emd,
+        f1=f1,
+        acc=acc,
+        x_axis=misclassified_nodes,
+        xlabel="Number of misclassified nodes",
+        title="Fairness score per number of misclassified nodes",
+    )
 
 
 # Varying small community sizes and only mislabeling in small
@@ -85,7 +97,9 @@ emd = []
 f1 = []
 acc = []
 for num_small in num_smalls:
-    graphs = varying_mu_values(num_nodes_G1=num_small, num_nodes_G2=num_large, mus=[0.3])
+    graphs = varying_mu_values(
+        num_nodes_G1=num_small, num_nodes_G2=num_large, mus=[0.3]
+    )
     for G in graphs:
         communities = {frozenset(G.nodes[v]["community"]) for v in G}
         gt_communities = list(communities)
@@ -97,7 +111,9 @@ for num_small in num_smalls:
         print(f"Size of small community: {num_small}")
         mislabel_comm_nodes = {"small": 10}
         G_mislabeled = mislabel_nodes(
-            G=copy.deepcopy(G), mislabel_comm_nodes=mislabel_comm_nodes, size_percentile=75
+            G=copy.deepcopy(G),
+            mislabel_comm_nodes=mislabel_comm_nodes,
+            size_percentile=75,
         )
         mislabeled_communities = {
             frozenset(G_mislabeled.nodes[v]["community"]) for v in G_mislabeled
@@ -106,7 +122,11 @@ for num_small in num_smalls:
         #  Not important drawing stuff, just for myself
         # draw_graph(G_mislabeled, pos=pos, communities=mislabeled_communities)
 
-        emd_fairness_score, f1_fairness_score, accuracy_fairness_score = calculate_fairness_metrics(
+        (
+            emd_fairness_score,
+            f1_fairness_score,
+            accuracy_fairness_score,
+        ) = calculate_fairness_metrics(
             G=G,
             gt_communities=gt_communities,
             pred_communities=list(mislabeled_communities),
@@ -118,5 +138,11 @@ for num_small in num_smalls:
         f1.append(f1_fairness_score)
         acc.append(accuracy_fairness_score)
 
-plot_fairness(emd=emd, f1=f1, acc=acc, x_axis=num_smalls, xlabel="Size of small community",
-              title="Fairness score per small community sizes")
+plot_fairness(
+    emd=emd,
+    f1=f1,
+    acc=acc,
+    x_axis=num_smalls,
+    xlabel="Size of small community",
+    title="Fairness score per small community sizes",
+)

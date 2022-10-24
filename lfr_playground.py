@@ -12,6 +12,7 @@ will work with the LFR benchmark in a different way than initially thought
 (more detailed notes are in Obsidian)
 """
 
+
 def print_densities(graph: nx.Graph, communities: list):
     intra_com_edges = np.array(
         [

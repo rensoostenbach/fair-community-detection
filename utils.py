@@ -34,7 +34,14 @@ def draw_graph(G: nx.Graph, pos: dict, communities=None):
     plt.show()
 
 
-def plot_fairness(emd: list, f1: list, acc: list, x_axis: list, xlabel: str, title="Fairness scores per ..."):
+def plot_fairness(
+    emd: list,
+    f1: list,
+    acc: list,
+    x_axis: list,
+    xlabel: str,
+    title="Fairness scores per ...",
+):
     plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
     plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
     plt.plot(x_axis, acc, label="Accuracy fairness", marker=".")
@@ -90,7 +97,7 @@ def dense_sparse_communities(G: nx.Graph, communities: list, cutoff: float):
     # Need to divide above numbers by maximum amount of edges possible in community
     sizes = [len(community) for community in communities]
     max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
-    densities = np.array(intra_com_edges / (max_possible_edges))
+    densities = np.array(intra_com_edges / max_possible_edges)
     dense_sparse = {}
     dense_sparse_coms = []
 
@@ -227,6 +234,13 @@ def split_types(distribution_fraction: list, comm_types: list):
 
 
 def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list: list):
+    """
+
+    :param gt_communities:
+    :param pred_coms:
+    :param mapping_list:
+    :return:
+    """
     n = sum([len(com) for com in gt_communities])
     y_true = [None] * n
     y_pred = [None] * n

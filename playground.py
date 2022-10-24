@@ -50,7 +50,11 @@ for seed in seeds:
     # pos = nx.spring_layout(G)  # compute graph layout
     # draw_graph(G, pos=pos, communities=communities)
 
-    emd_fairness_score, f1_fairness_score, accuracy_fairness_score = calculate_fairness_metrics(
+    (
+        emd_fairness_score,
+        f1_fairness_score,
+        accuracy_fairness_score,
+    ) = calculate_fairness_metrics(
         G=G,
         gt_communities=gt_communities,
         pred_communities=pred_coms.communities,
@@ -62,8 +66,14 @@ for seed in seeds:
     f1.append(f1_fairness_score)
     acc.append(accuracy_fairness_score)
 
-plot_fairness(emd=emd, f1=f1, acc=acc, x_axis=seeds, xlabel="Seed chosen",
-              title="Fairness score different seed \n(lines don't say anything but do show how they are correlated)")
+plot_fairness(
+    emd=emd,
+    f1=f1,
+    acc=acc,
+    x_axis=seeds,
+    xlabel="Seed chosen",
+    title="Fairness score different seed \n(lines don't say anything but do show how they are correlated)",
+)
 
 # print(f"Purity: {purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}")
 # print(
