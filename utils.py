@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+from collections import Counter
 
 
 def draw_graph(G: nx.Graph, pos: dict, communities=None):
@@ -264,3 +265,54 @@ def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list
                 y_pred[node] = -1
 
     return y_true, y_pred
+
+
+def classify_graph(G: nx.Graph, percentile: int):
+    """
+    Classify an LFR Graph to see whether it is suitable for testing fairness.
+
+    In order to be suitable for small-large fairness:
+    - The network has at least 3 large communities and 3 small communities based on the percentile
+    - The largest community is at least 5x(?) larger than the smallest community.
+
+    In order to be suitable for dense-sparse fairness:
+    - The network has at least 3 dense communities and 3 sparse communities based on the percentile
+    - The most dense community is at least 5x(?) denser than the most sparse community.
+
+    :param G:
+    :param percentile:
+    :return classified_graph: Tuple consisting of the graph in both places if it is suitable for both fairness types.
+                              Else, the graph is in either of the two places, or in neither.
+    """
+    communities = list({frozenset(G.nodes[v]["community"]) for v in G})
+
+    _, comm_types_size = small_large_communities(
+        communities=communities, percentile=percentile
+    )
+    size_counters = Counter(comm_types_size).values()
+    _, comm_types_density = dense_sparse_communities(
+        G=G, communities=communities, percentile=percentile
+    )
+    density_counters = Counter(comm_types_density).values()
+
+    intra_com_edges = np.array(
+        [
+            G.subgraph(communities[idx]).size()
+            for idx, community in enumerate(communities)
+        ]
+    )
+    sizes = [len(community) for community in communities]
+    max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
+    densities = np.array(intra_com_edges / max_possible_edges)
+
+    size_bool = (max(sizes)/min(sizes) >= 5 and all(x >= 3 for x in size_counters))
+    density_bool = (max(densities)/min(densities) >= 5 and all(x >= 3 for x in density_counters))
+
+    if size_bool and density_bool:
+        return G, G
+    elif size_bool and not density_bool:
+        return G, None
+    elif not size_bool and density_bool:
+        return None, G
+    else:
+        return None, None
