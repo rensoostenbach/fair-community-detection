@@ -78,13 +78,13 @@ def small_large_communities(communities: list, percentile: int):
     return small_large, small_large_coms
 
 
-def dense_sparse_communities(G: nx.Graph, communities: list, cutoff: float):
+def dense_sparse_communities(G: nx.Graph, communities: list, percentile: int):
     """
     Decide which communities are dense ones and sparse ones, based on a percentile cutoff value.
 
     :param G: The NetworkX Graph from which we can extract the edges
     :param communities: List of ground-truth communities
-    :param cutoff: The cutoff on which the cutoff value is based (0.5 for 50% of intra-community edges)
+    :param percentile: The percentile on which the cutoff value is based (e.g. 75 for 75th percentile)
     :return dense_sparse: Dictionary indicating per node whether it is in a dense or sparse community
     :return dense_sparse_coms: List containing per community whether it is dense or sparse
     """
@@ -102,12 +102,12 @@ def dense_sparse_communities(G: nx.Graph, communities: list, cutoff: float):
     dense_sparse_coms = []
 
     for idx, community in enumerate(communities):
-        if densities[idx] >= cutoff:
+        if densities[idx] >= np.percentile(densities, percentile):
             dense_sparse_coms.append("dense")
         else:
             dense_sparse_coms.append("sparse")
         for node in community:
-            if densities[idx] >= cutoff:
+            if densities[idx] >= np.percentile(densities, percentile):
                 dense_sparse[node] = "dense"
             else:
                 dense_sparse[node] = "sparse"

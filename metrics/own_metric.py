@@ -83,8 +83,7 @@ def calculate_fairness_metrics(
     gt_communities: list,
     pred_communities: list,
     fairness_type: str,
-    size_percentile=90,
-    density_cutoff=0.5,
+    percentile=75,
 ):
     """
     Calculate and print out the fairness metric for a given LFR graph with ground-truth and predicted communities.
@@ -92,9 +91,8 @@ def calculate_fairness_metrics(
     :param G: The NetworkX graph for which we want to compute the fairness
     :param gt_communities: List of ground-truth communities
     :param pred_communities: List of communities as predicted by CD method
-    :param fairness_type: String indicating small_large, density
-    :param size_percentile: Integer percentile of the small-large cutoff
-    :param density_cutoff: Float from 0 to 1 indication the cutoff ratio for density
+    :param fairness_type: String indicating size, density
+    :param percentile: Integer percentile of the small-large or density cutoff
     :return:
     """
     # Distributions / fractions
@@ -109,13 +107,13 @@ def calculate_fairness_metrics(
     )
 
     # Decide which type of fairness we are looking into
-    if fairness_type == "small_large":
+    if fairness_type == "size":
         node_comm_types, comm_types = small_large_communities(
-            communities=gt_communities, percentile=size_percentile
+            communities=gt_communities, percentile=percentile
         )
     else:  # fairness_type == "density" -->  TODO Perhaps: Add a third option for fairness type
         node_comm_types, comm_types = dense_sparse_communities(
-            G=G, communities=gt_communities, cutoff=density_cutoff
+            G=G, communities=gt_communities, percentile=percentile
         )
 
     f1_per_comm = f1_fairness(
