@@ -163,7 +163,7 @@ def mislabel_nodes(
         len(where_to_mislabel.intersection({"sparse", "dense"})) > 0
     ):  # dense or sparse
         node_comm_types, comm_types = dense_sparse_communities(
-            G=G, communities=communities, cutoff=density_cutoff
+            G=G, communities=communities, percentile=75
         )
     else:  # random
         num_nodes = mislabel_comm_nodes["random"]
