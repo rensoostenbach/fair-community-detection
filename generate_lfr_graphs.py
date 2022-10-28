@@ -30,10 +30,10 @@ for graph, seed in zip(size_fairness_graphs, size_seeds):
 for graph, seed in zip(density_fairness_graphs, density_seeds):
     nx.write_gpickle(graph, f"data/labeled/lfr/density_graph_{seed}.pickle")
 
-with open('data/labeled/lfr/size_seeds.txt', 'w') as f:
+with open("data/labeled/lfr/size_seeds.txt", "w") as f:
     for line in size_seeds:
         f.write(f"{line}\n")
 
-with open('data/labeled/lfr/density_seeds.txt', 'w') as f:
+with open("data/labeled/lfr/density_seeds.txt", "w") as f:
     for line in density_seeds:
         f.write(f"{line}\n")
