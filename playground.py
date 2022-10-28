@@ -40,7 +40,9 @@ for seed in SEEDS:
 size_fairness_graphs = [x[0] for x in fairness_graphs if x[0] is not None]
 size_seeds = [i for i in range(len(fairness_graphs)) if fairness_graphs[i][0] != None]
 density_fairness_graphs = [x[1] for x in fairness_graphs if x[1] is not None]
-density_seeds = [i for i in range(len(fairness_graphs)) if fairness_graphs[i][1] != None]
+density_seeds = [
+    i for i in range(len(fairness_graphs)) if fairness_graphs[i][1] != None
+]
 
 emd = []
 f1 = []
@@ -68,7 +70,7 @@ for G in size_fairness_graphs:
         gt_communities=gt_communities,
         pred_communities=pred_coms.communities,
         fairness_type="size",
-        percentile=PERCENTILE
+        percentile=PERCENTILE,
     )
 
     emd.append(emd_fairness_score)
@@ -81,10 +83,10 @@ plot_fairness(
     acc=acc,
     x_axis=size_seeds,
     xlabel="Seed chosen",
-    title="Fairness score different seed \n(lines don't say anything but do show how they are correlated)",
+    title="Community size fairness score different seed \n(lines don't say anything but do show how they are correlated)",
 )
-print(np.array(emd)/np.array(f1))
-print(np.array(emd)/np.array(acc))
+print(np.array(emd) / np.array(f1))
+print(np.array(emd) / np.array(acc))
 
 emd = []
 f1 = []
@@ -112,7 +114,7 @@ for G in density_fairness_graphs:
         gt_communities=gt_communities,
         pred_communities=pred_coms.communities,
         fairness_type="density",
-        percentile=PERCENTILE
+        percentile=PERCENTILE,
     )
 
     emd.append(emd_fairness_score)
@@ -125,10 +127,10 @@ plot_fairness(
     acc=acc,
     x_axis=density_seeds,
     xlabel="Seed chosen",
-    title="Fairness score different seed \n(lines don't say anything but do show how they are correlated)",
+    title="Density fairness score different seed \n(lines don't say anything but do show how they are correlated)",
 )
-print(np.array(emd)/np.array(f1))
-print(np.array(emd)/np.array(acc))
+print(np.array(emd) / np.array(f1))
+print(np.array(emd) / np.array(acc))
 
 # print(f"Purity: {purity(pred_coms=pred_coms.communities, real_coms=gt_communities)}")
 # print(
