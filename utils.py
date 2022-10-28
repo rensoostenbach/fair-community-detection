@@ -319,8 +319,10 @@ def classify_graph(G: nx.Graph, percentile: int):
     max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
     densities = np.array(intra_com_edges / max_possible_edges)
 
-    size_bool = (max(sizes)/min(sizes) >= 5 and all(x >= 3 for x in size_counters))
-    density_bool = (max(densities)/min(densities) >= 5 and all(x >= 3 for x in density_counters))
+    size_bool = max(sizes) / min(sizes) >= 5 and all(x >= 3 for x in size_counters)
+    density_bool = max(densities) / min(densities) >= 5 and all(
+        x >= 3 for x in density_counters
+    )
 
     if size_bool and density_bool:
         return G, G
