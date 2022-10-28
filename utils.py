@@ -4,7 +4,7 @@ import numpy as np
 from collections import Counter
 
 
-def draw_graph(G: nx.Graph, pos: dict, communities=None):
+def draw_graph(G: nx.Graph, pos: dict, filename: str, communities=None):
     """Draw a graph, with the choice of including communities or not"""
 
     plt.figure(figsize=(15, 10))
@@ -32,7 +32,8 @@ def draw_graph(G: nx.Graph, pos: dict, communities=None):
         )
         nx.draw_networkx_edges(G=G, pos=pos, alpha=0.3)
 
-    plt.show()
+    plt.savefig(f"plots/{filename}.png")
+    plt.close()  # Use plot.show() if we want to show it
 
 
 def plot_fairness(
