@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from collections import Counter
 
 
@@ -50,6 +51,18 @@ def plot_fairness(
     plt.legend()
     plt.xlabel(f"{xlabel}")
     plt.ylabel("Fairness scores")
+    plt.title(f"{title}")
+    plt.show()
+
+
+def plot_heatmap(
+    data: np.array,
+    title: str,
+):
+    ax = sns.heatmap(data, cmap="crest")
+    ax.invert_yaxis()
+    ax.set_xlabel("Number of misclassified nodes in major community")
+    ax.set_ylabel("Number of misclassified nodes in minor community")
     plt.title(f"{title}")
     plt.show()
 
