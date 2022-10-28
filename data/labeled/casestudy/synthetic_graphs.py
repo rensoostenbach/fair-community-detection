@@ -142,27 +142,25 @@ def varying_denseness(
     return graphs
 
 
-def mislabel_nodes(
-    G: nx.Graph, mislabel_comm_nodes: dict, size_percentile=90, density_cutoff=0.5
-):
+def mislabel_nodes(G: nx.Graph, mislabel_comm_nodes: dict, percentile=75):
     """
     Pretty sure this function only works for two communities because of comm_types.index(comm_type) call
     :param G:
     :param mislabel_comm_nodes: Dict of community types and number of nodes to mislabel
-    :param size_percentile:
-    :param density_cutoff:
+    :param percentile:
     :return:
     """
+
     communities = list({frozenset(G.nodes[v]["community"]) for v in G})
     where_to_mislabel = set(mislabel_comm_nodes.keys())
     if len(where_to_mislabel.intersection({"small", "large"})) > 0:
-        node_comm_types, comm_types = small_large_communities(
-            communities=communities, percentile=size_percentile
+        _, comm_types = small_large_communities(
+            communities=communities, percentile=percentile
         )
     elif (
         len(where_to_mislabel.intersection({"sparse", "dense"})) > 0
     ):  # dense or sparse
-        node_comm_types, comm_types = dense_sparse_communities(
+        _, comm_types = dense_sparse_communities(
             G=G, communities=communities, percentile=75
         )
     else:  # random
@@ -178,27 +176,58 @@ def mislabel_nodes(
                 G.nodes[node]["community"] = node_new_community
         return G
 
-    for comm_type in where_to_mislabel:
-        communities = list({frozenset(G.nodes[v]["community"]) for v in G})
-        comm_to_mislabel = comm_types.index(comm_type)
-        # Randomly sample num_nodes that need to be mislabeled
-        nodes_to_mislabel = random.sample(
-            communities[comm_to_mislabel], k=mislabel_comm_nodes[comm_type]
-        )
-        other_community = communities[1 - comm_to_mislabel]  # Get the other community
-        # Now other_community will always be the new community for the set of nodes that will be mislabeled
-        new_community_original_nodes = set(nodes_to_mislabel).union(
-            set(other_community)
-        )
+    # We make a dictionary of the original communities, which is where we pick the nodes from to misclassify
+    original_comms = {}
+    modified_comms = {}
+    for comm_type in comm_types:
+        original_comms[comm_type] = communities[(comm_types.index(comm_type))]
 
-        new_community_mislabeled_nodes = set(communities[comm_to_mislabel]).difference(
-            set(nodes_to_mislabel)
-        )
+    # Hacky way to check if we are in the first or a possible second iteration. Not great but hopefully it works
+    for idx, comm_type in enumerate(
+        sorted(where_to_mislabel)
+    ):  # Sorted ensures that we iterate alphabetically
+        if idx == 0:
+            comm_to_mislabel = comm_types.index(comm_type)
+            # Randomly sample num_nodes that need to be mislabeled
+            nodes_to_mislabel = random.sample(
+                original_comms[comm_type], k=mislabel_comm_nodes[comm_type]
+            )
+            other_community = communities[
+                1 - comm_to_mislabel
+            ]  # Get the other community
+            # Now other_community will always be the new community for the set of nodes that will be mislabeled
+            new_community_original_nodes = set(nodes_to_mislabel).union(
+                set(other_community)
+            )
 
-        for node in G.nodes:
-            if node in new_community_original_nodes:
-                G.nodes[node]["community"] = new_community_original_nodes
-            else:  # Mislabeled nodes
-                G.nodes[node]["community"] = new_community_mislabeled_nodes
+            new_community_mislabeled_nodes = set(
+                communities[comm_to_mislabel]
+            ).difference(set(nodes_to_mislabel))
+
+            for node in G.nodes:
+                if node in new_community_original_nodes:
+                    G.nodes[node]["community"] = new_community_original_nodes
+                else:  # Mislabeled nodes
+                    G.nodes[node]["community"] = new_community_mislabeled_nodes
+
+        elif idx == 1:
+            # Randomly sample num_nodes that need to be mislabeled
+            nodes_to_mislabel = random.sample(
+                original_comms[comm_type], k=mislabel_comm_nodes[comm_type]
+            )
+
+            # Iteration 2
+            it2_new_community_mislabeled_nodes = new_community_mislabeled_nodes.union(
+                set(nodes_to_mislabel)
+            )
+            it2_new_community_original_nodes = new_community_original_nodes.difference(
+                set(nodes_to_mislabel)
+            )
+
+            for node in G.nodes:
+                if node in it2_new_community_original_nodes:
+                    G.nodes[node]["community"] = it2_new_community_original_nodes
+                else:  # Mislabeled nodes
+                    G.nodes[node]["community"] = it2_new_community_mislabeled_nodes
 
     return G
