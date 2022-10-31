@@ -37,7 +37,7 @@ def draw_graph(G: nx.Graph, pos: dict, filename: str, communities=None):
     plt.close()  # Use plot.show() if we want to show it
 
 
-def plot_fairness(
+def lineplot_fairness(
     emd: list,
     f1: list,
     acc: list,

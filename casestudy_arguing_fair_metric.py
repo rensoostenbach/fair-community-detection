@@ -2,7 +2,7 @@ import copy
 import networkx as nx
 import numpy as np
 
-from utils import draw_graph, plot_fairness, plot_heatmap
+from utils import draw_graph, lineplot_fairness, plot_heatmap
 from data.labeled.casestudy.synthetic_graphs import (
     varying_mu_values,
     varying_denseness,
@@ -139,7 +139,7 @@ for num_small in num_smalls:
         f1.append(f1_fairness_score)
         acc.append(accuracy_fairness_score)
 
-plot_fairness(
+lineplot_fairness(
     emd=emd,
     f1=f1,
     acc=acc,
@@ -206,7 +206,7 @@ for G in graph:
             f1.append(f1_fairness_score)
             acc.append(accuracy_fairness_score)
 
-        plot_fairness(
+        lineplot_fairness(
             emd=emd,
             f1=f1,
             acc=acc,
@@ -228,7 +228,7 @@ for G in graph:
 
     #  Not important drawing stuff, just for myself
     # pos = nx.spring_layout(G)  # compute graph layout
-    # draw_graph(G, pos=pos, filename=f"initial_graph", communities=communities)
+    # draw_graph(G, pos=pos, filename="initial_graph", communities=communities)
 
     misclassified_nodes = list(range(0, 21))
     small_large = ["small", "large"]

@@ -5,7 +5,7 @@ import numpy as np
 
 from metrics.ground_truth import purity, inverse_purity
 from metrics.own_metric import calculate_fairness_metrics
-from utils import draw_graph, small_large_communities, plot_fairness, classify_graph
+from utils import draw_graph, small_large_communities, lineplot_fairness, classify_graph
 
 
 # The below plot shows that EMD is most often much higher than the other two
@@ -77,7 +77,7 @@ for G in size_fairness_graphs:
     f1.append(f1_fairness_score)
     acc.append(accuracy_fairness_score)
 
-plot_fairness(
+lineplot_fairness(
     emd=emd,
     f1=f1,
     acc=acc,
@@ -121,7 +121,7 @@ for G in density_fairness_graphs:
     f1.append(f1_fairness_score)
     acc.append(accuracy_fairness_score)
 
-plot_fairness(
+lineplot_fairness(
     emd=emd,
     f1=f1,
     acc=acc,
