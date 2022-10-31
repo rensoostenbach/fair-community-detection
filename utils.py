@@ -43,6 +43,7 @@ def lineplot_fairness(
     acc: list,
     x_axis: list,
     xlabel: str,
+    noline: bool,
     title="Fairness scores per ...",
 ):
     """
@@ -53,12 +54,18 @@ def lineplot_fairness(
     :param acc: List containing Acc fairness scores
     :param x_axis: List, values for the x-axis
     :param xlabel: String, x-axis label
+    :parm noline: Boolean indicating if we don't want a line plot
     :param title: String, title of the plot
     :return: Matplotlib plot
     """
-    plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
-    plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
-    plt.plot(x_axis, acc, label="Accuracy fairness", marker=".")
+    if noline:
+        plt.plot(x_axis, emd, "s", label="EMD Fairness")
+        plt.plot(x_axis, f1, "s", label="F1 Fairness")
+        plt.plot(x_axis, acc, "s", label="Accuracy fairness")
+    else:
+        plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
+        plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
+        plt.plot(x_axis, acc, label="Accuracy fairness", marker=".")
     plt.legend()
     plt.xlabel(f"{xlabel}")
     plt.ylabel("Fairness scores")
