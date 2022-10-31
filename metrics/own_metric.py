@@ -15,7 +15,7 @@ from utils import (
 def fairness_score(type1_score: float, type2_score: float):
     """
     Compare the scores of two types of communities via taking the absolute difference and dividing over their sum.
-    Value closer to 0, the better.
+    Value closer to 1, the better.
 
     :param type1_score:
     :param type2_score:
@@ -24,9 +24,9 @@ def fairness_score(type1_score: float, type2_score: float):
     if (
         type1_score == type2_score == 0
     ):  # Would give division by 0 error. Occurs when classification is perfect.
-        return 0
+        return 1
     else:
-        return abs(type1_score - type2_score) / (type1_score + type2_score)
+        return 1 - (abs(type1_score - type2_score) / (type1_score + type2_score))
 
 
 def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
@@ -72,8 +72,6 @@ def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: lis
         type1_score=fairness_emd_type1, type2_score=fairness_emd_type2
     )
 
-    print(f"Achieved fractions type 1: {np.round(achieved_fractions_type1, 2)}")
-    print(f"Achieved fractions type 2: {np.round(achieved_fractions_type2, 2)}")
 
     return score
 
