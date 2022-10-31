@@ -67,6 +67,45 @@ def plot_heatmap(
     plt.show()
 
 
+def scatterplot_fairness(
+    fairness_scores: dict,
+    accuracy_scores: dict,
+    fairness_type: int,
+    accuracy_type: int,
+):
+    """
+
+    :param fairness_scores:
+    :param accuracy_scores:
+    :param fairness_type: 0 for EMD, 1 for F1, 2 for ACC
+    :param accuracy_type: 0 for ARI, 1 for VI
+    :return:
+    """
+    for method, scores in fairness_scores.items():
+        fairness_score = [x[fairness_type] for x in scores]
+        acc_score_list = [x for x in accuracy_scores[method]][accuracy_type]
+        acc_score = [x.score for x in acc_score_list]
+        plt.scatter(np.mean(fairness_score), np.mean(acc_score), label=f"{method}")
+
+    plt.xlabel(f"Average Fairness score of type {fairness_type}")
+    plt.ylabel(f"Accuracy of type {accuracy_type}")
+    plt.title(f"Accuracy vs Fairness")
+    plt.xlim(0, 1)
+    if accuracy_type != 1:
+        plt.ylim(0, 1)
+    else:  # Variation of information, need to set different bound than 1.
+        max_vi = 0
+        for score in accuracy_scores.values():
+            matchingresult_per_method = score[1]
+            vi_per_method = [x.score for x in matchingresult_per_method]
+            for vi in vi_per_method:
+                if vi > max_vi:
+                    max_vi = vi
+        plt.ylim(0, max_vi)
+    plt.legend()
+    plt.show()
+
+
 def small_large_communities(communities: list, percentile: int):
     """
     Decide which communities are small ones and large ones, based on a percentile cutoff value.
