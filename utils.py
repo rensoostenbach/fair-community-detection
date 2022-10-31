@@ -62,6 +62,7 @@ def lineplot_fairness(
     plt.legend()
     plt.xlabel(f"{xlabel}")
     plt.ylabel("Fairness scores")
+    plt.ylim(bottom=0)
     plt.title(f"{title}")
     plt.show()
 
