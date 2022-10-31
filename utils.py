@@ -45,6 +45,17 @@ def lineplot_fairness(
     xlabel: str,
     title="Fairness scores per ...",
 ):
+    """
+    Draw a line plot that indicates fairness for various synthetic situations
+
+    :param emd: List containing EMD fairness scores
+    :param f1: List containing F1 fairness scores
+    :param acc: List containing Acc fairness scores
+    :param x_axis: List, values for the x-axis
+    :param xlabel: String, x-axis label
+    :param title: String, title of the plot
+    :return: Matplotlib plot
+    """
     plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
     plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
     plt.plot(x_axis, acc, label="Accuracy fairness", marker=".")
@@ -59,7 +70,14 @@ def plot_heatmap(
     data: np.array,
     title: str,
 ):
-    ax = sns.heatmap(data, cmap="crest")
+    """
+    Plot a heatmap for the synthetic case of misclassifying nodes in the minor or major community.
+
+    :param data: Tabular data (NumPy array or Pandas DataFrame) containing the fairness values
+    :param title: String, title of the plot
+    :return: Matplotlib plot
+    """
+    ax = sns.heatmap(data, cmap="crest_r")
     ax.invert_yaxis()
     ax.set_xlabel("Number of misclassified nodes in major community")
     ax.set_ylabel("Number of misclassified nodes in minor community")
@@ -75,11 +93,11 @@ def scatterplot_fairness(
 ):
     """
 
-    :param fairness_scores:
-    :param accuracy_scores:
+    :param fairness_scores: Dictionary containing fairness scores per method and fairness type
+    :param accuracy_scores: Dictionary containing accuracy values per method and accuracy type
     :param fairness_type: 0 for EMD, 1 for F1, 2 for ACC
     :param accuracy_type: 0 for ARI, 1 for VI
-    :return:
+    :return: Matplotlib plot
     """
     for method, scores in fairness_scores.items():
         fairness_score = [x[fairness_type] for x in scores]
@@ -222,10 +240,11 @@ def modify_mapping_list(mapping_list: list):
 
 def mapping(gt_communities: list, pred_coms: list):
     """
+    Map the ground-truth communities to their most similar predicted community.
 
-    :param gt_communities:
-    :param pred_coms:
-    :return achieved_distribution:
+    :param gt_communities: List containing the ground-truth communities
+    :param pred_coms: List contianing the predicted communities
+    :return achieved_distribution: List containing per ground-truth community how many nodes were correctly classified
     :return mapping_list: Index indicates gt-community and value indicates the pred comm that is most similar
     """
     achieved_distribution = []
@@ -251,20 +270,22 @@ def mapping(gt_communities: list, pred_coms: list):
 
 def jaccard_similarity(com1: list, com2: list):
     """
+    Compute the Jaccard similarity between two communities.
 
-    :param com1:
-    :param com2:
-    :return:
+    :param com1: List containing the nodes of the first community
+    :param com2: List containing the nodes of the second community
+    :return: float, the Jaccard similarity
     """
     return len(set(com1).intersection(com2)) / len(set(com1).union(com2))
 
 
 def find_max_jaccard(real_com: list, pred_coms: list):
     """
+    Find the maximum Jaccard value between a ground-truth community and all predicted communities.
 
-    :param real_com:
-    :param pred_coms:
-    :return:
+    :param real_com: The nodes of the ground-truth community
+    :param pred_coms: A list containing the predicted communities
+    :return: Tuple, the most similar predicted community together with the Jaccard score
     """
     jaccard_score = 0
     most_similar_community = None
@@ -278,10 +299,11 @@ def find_max_jaccard(real_com: list, pred_coms: list):
 
 def split_types(distribution_fraction: list, comm_types: list):
     """
+    Split scores per community into scores per fairness type
 
-    :param distribution_fraction:
-    :param comm_types:
-    :return:
+    :param distribution_fraction: List containing the scores per community, either as distributions or fractions
+    :param comm_types: List containing the fairness type of each community
+    :return: type1, type2: Scores per fairness type
     """
 
     type1 = []
@@ -297,11 +319,13 @@ def split_types(distribution_fraction: list, comm_types: list):
 
 def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list: list):
     """
+    Transform the ground-truth communties and predicted communities to y_true and y_pred sklearn format,
+    so we can calculate the F1 score.
 
-    :param gt_communities:
-    :param pred_coms:
-    :param mapping_list:
-    :return:
+    :param gt_communities: List containing the ground-truth communities
+    :param pred_coms: List containing the predicted communities
+    :param mapping_list: List of mapping from ground-truth community (index) to predicted community (value)
+    :return: y_true, y_pred. Lists of the true communities and predicted communities
     """
     n = sum([len(com) for com in gt_communities])
     y_true = [None] * n

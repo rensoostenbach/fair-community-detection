@@ -17,9 +17,9 @@ def fairness_score(type1_score: float, type2_score: float):
     Compare the scores of two types of communities via taking the absolute difference and dividing over their sum.
     Value closer to 1, the better.
 
-    :param type1_score:
-    :param type2_score:
-    :return:
+    :param type1_score: Score of fairness type 1
+    :param type2_score: Score of fairness type 2
+    :return: Float, fairness score that compares fairness type 1 and 2.
     """
     if (
         type1_score == type2_score == 0
@@ -30,6 +30,14 @@ def fairness_score(type1_score: float, type2_score: float):
 
 
 def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
+    """
+    Compute the F1 score per community
+
+    :param gt_communities: List containing the ground-truth communities
+    :param pred_coms: List containing the predicted communities
+    :param mapping_list: List of mapping from ground-truth community (index) to predicted community (value)
+    :return: F1 score per community
+    """
     # Using sklearn implementation requires me to write some code te get y_true and y_pred
     y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping_list)
 
@@ -39,6 +47,13 @@ def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
 
 
 def score_per_comm_to_fairness(score_per_comm: list, comm_types: list):
+    """
+    Transform the score per community to a fairness score
+
+    :param score_per_comm: Scores per community
+    :param comm_types: Fairness type per community
+    :return: Float, fairness score
+    """
     type1_score, type2_score = split_types(score_per_comm, comm_types=comm_types)
     return fairness_score(
         type1_score=np.average(type1_score), type2_score=np.average(type2_score)
@@ -47,10 +62,10 @@ def score_per_comm_to_fairness(score_per_comm: list, comm_types: list):
 
 def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: list):
     """
-    :param real_fractions:
-    :param achieved_fractions:
-    :param comm_types:
-    :return:
+    :param real_fractions: List containing 1's for the length of the number of ground-truth communities there are
+    :param achieved_fractions: List containing the fractions of correctly classified nodes per ground-truth community
+    :param comm_types: Fairness type per community
+    :return: Float, EMD Fairness
     """
     real_fractions_type1, real_fractions_type2 = split_types(
         distribution_fraction=real_fractions,
@@ -72,7 +87,6 @@ def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: lis
         type1_score=fairness_emd_type1, type2_score=fairness_emd_type2
     )
 
-
     return score
 
 
@@ -84,14 +98,14 @@ def calculate_fairness_metrics(
     percentile=75,
 ):
     """
-    Calculate and print out the fairness metric for a given LFR graph with ground-truth and predicted communities.
+    Calculate the fairness metric for a given LFR graph with ground-truth and predicted communities.
 
     :param G: The NetworkX graph for which we want to compute the fairness
     :param gt_communities: List of ground-truth communities
     :param pred_communities: List of communities as predicted by CD method
     :param fairness_type: String indicating size, density
     :param percentile: Integer percentile of the small-large or density cutoff
-    :return:
+    :return: Tuple containing all three fairness scores
     """
     # Distributions / fractions
     real_distribution = [len(community) for community in gt_communities]
