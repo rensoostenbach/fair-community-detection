@@ -161,9 +161,17 @@ def modify_mapping_list(mapping_list: list):
             for index in indices:
                 if jaccards[index] > max_jaccard:
                     max_jaccard = jaccards[index]
-                # Find the index that max jaccard belongs to, and set the most similar pred com to -1 for the others
-            max_jaccard_index = jaccards.index(max_jaccard)
-            indices.remove(max_jaccard_index)
+            # Find the index that max jaccard belongs to, and set the most similar pred com to -1 for the others
+            try:
+                max_jaccard_index = jaccards.index(max_jaccard)
+                indices.remove(max_jaccard_index)
+            except KeyError:  # Occurs when there are multiple jaccards that have the same score
+                max_jaccard_indices = [
+                    i for i, x in enumerate(jaccards) if x == max_jaccard
+                ]
+                # We remove the first element that intersects with indices and max_jaccard_indices
+                idx_to_remove = list(indices.intersection(set(max_jaccard_indices)))[0]
+                indices.remove(idx_to_remove)
             for index in indices:
                 most_similar_pred_coms[index] = -1
 
