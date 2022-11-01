@@ -152,6 +152,56 @@ def scatterplot_fairness(
     plt.show()
 
 
+def interesting_playground_graphs(
+    fair_unfair: str,
+    fairness_type: str,
+    G: nx.Graph,
+    idx: int,
+    communities: list,
+    pred_coms: list,
+    emd: list,
+    f1: list,
+    acc: list,
+    frac_type1: list,
+    frac_type2: list,
+    f1_type1: list,
+    f1_type2: list,
+    precision_type1: list,
+    precision_type2: list,
+    recall_type1: list,
+    recall_type2: list,
+    comm_types: list,
+    mapping_list: list,
+):
+    print(f"{fair_unfair} {fairness_type} prediction for Graph with idx {idx}")
+    pos = nx.spring_layout(G, k=2 / np.sqrt(1000))  # compute graph layout
+    node_color_gt, node_color_pred = gt_pred_same_colors(
+        G=G, gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list
+    )
+    draw_graph(
+        G,
+        pos=pos,
+        node_color=node_color_gt,
+        filename=f"{fairness_type}_{fair_unfair}_{idx}_gt",
+        title=f"Number of real communities: {len(communities)}\n"
+        f"Community sizes distribution: {sorted([len(comm) for comm in communities], reverse=True)}",
+    )
+    draw_graph(
+        G,
+        pos=pos,
+        node_color=node_color_pred,
+        filename=f"{fairness_type}_{fair_unfair}_{idx}_pred",
+        title=f"Number of predicted communities: {len(pred_coms)}\n"
+        f"Community sizes distribution: {sorted([len(comm) for comm in pred_coms], reverse=True)}",
+    )
+    print(f"EMD: {emd}, F1: {f1}, Acc: {acc}")
+    print(f"Fractions type 1: {frac_type1}\nFractions type 2: {frac_type2}")
+    print(f"F1 type 1: {f1_type1}\nF1 type 2: {f1_type2}")
+    print(f"Precision type 1: {precision_type1}\nPrecision type 2: {precision_type2}")
+    print(f"Recall type 1: {recall_type1}\nRecall type 2: {recall_type2}")
+    print(f"Mapping list: {mapping_list},\ncomm_types: {comm_types}\n\n")
+
+
 def small_large_communities(communities: list, percentile: int):
     """
     Decide which communities are small ones and large ones, based on a percentile cutoff value.
