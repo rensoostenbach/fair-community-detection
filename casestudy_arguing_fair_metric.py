@@ -145,8 +145,9 @@ lineplot_fairness(
     acc=acc,
     x_axis=num_smalls,
     xlabel="Size of small community",
+    noline=False,
     title=f"Fairness score per small community sizes\n"
-    f"(large community has {num_large} nodes, 10 nodes are misclassified in small community)",
+    f"(N_large: {num_large} nodes, 10 nodes are misclassified in small community)",
 )
 
 # Varying number of misclassified nodes in small or large community
@@ -212,6 +213,7 @@ for G in graph:
             acc=acc,
             x_axis=misclassified_nodes,
             xlabel=f"Number of misclassified nodes in {size} community",
+            noline=False,
             title=f"Fairness score per number of misclassified nodes in {size} community\n"
             f"N_small={num_small}, N_large={num_large}",
         )
