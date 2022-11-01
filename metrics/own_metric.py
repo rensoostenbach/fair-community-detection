@@ -1,6 +1,6 @@
 import networkx as nx
 import numpy as np
-from sklearn.metrics import f1_score
+from sklearn.metrics import precision_recall_fscore_support
 from scipy.stats import wasserstein_distance
 
 from utils import (
@@ -41,7 +41,7 @@ def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
     # Using sklearn implementation requires me to write some code te get y_true and y_pred
     y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping_list)
 
-    return f1_score(
+    return precision_recall_fscore_support(
         y_true, y_pred, average=None, labels=list(range(len(gt_communities)))
     )
 
@@ -96,6 +96,7 @@ def calculate_fairness_metrics(
     pred_communities: list,
     fairness_type: str,
     percentile=75,
+    interpret_results=False,
 ):
     """
     Calculate the fairness metric for a given LFR graph with ground-truth and predicted communities.
@@ -105,6 +106,7 @@ def calculate_fairness_metrics(
     :param pred_communities: List of communities as predicted by CD method
     :param fairness_type: String indicating size, density
     :param percentile: Integer percentile of the small-large or density cutoff
+    :param interpret_results: Boolean indicating whether to return intermediate results to interpret them
     :return: Tuple containing all three fairness scores
     """
     # Distributions / fractions
@@ -128,7 +130,7 @@ def calculate_fairness_metrics(
             G=G, communities=gt_communities, percentile=percentile
         )
 
-    f1_per_comm = f1_fairness(
+    precision, recall, f1_per_comm, support = f1_fairness(
         gt_communities=gt_communities,
         pred_coms=pred_communities,
         mapping_list=mapping_list,
@@ -146,4 +148,27 @@ def calculate_fairness_metrics(
         score_per_comm=achieved_fractions, comm_types=comm_types
     )
 
-    return emd_fairness_score, f1_fairness_score, accuracy_fairness_score
+    if interpret_results:
+        fractions_type1, fractions_type2 = split_types(
+            distribution_fraction=achieved_fractions, comm_types=comm_types
+        )
+        f1_type1, f1_type2 = split_types(distribution_fraction=f1_per_comm, comm_types=comm_types)
+        precision_type1, precision_type2 = split_types(distribution_fraction=precision, comm_types=comm_types)
+        recall_type1, recall_type2 = split_types(distribution_fraction=recall, comm_types=comm_types)
+        return (
+            emd_fairness_score,
+            f1_fairness_score,
+            accuracy_fairness_score,
+            fractions_type1,
+            fractions_type2,
+            f1_type1,
+            f1_type2,
+            precision_type1,
+            precision_type2,
+            recall_type1,
+            recall_type2,
+            mapping_list,
+            comm_types,
+        )
+    else:
+        return emd_fairness_score, f1_fairness_score, accuracy_fairness_score
