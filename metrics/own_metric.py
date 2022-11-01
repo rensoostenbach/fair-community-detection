@@ -42,7 +42,7 @@ def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
     y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping_list)
 
     return precision_recall_fscore_support(
-        y_true, y_pred, average=None, labels=list(range(len(gt_communities)))
+        y_true, y_pred, average=None, labels=list(range(len(gt_communities))), zero_division=0
     )
 
 
