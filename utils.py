@@ -5,24 +5,20 @@ import seaborn as sns
 from collections import Counter
 
 
-def draw_graph(G: nx.Graph, pos: dict, filename: str, communities=None):
+def draw_graph(
+    G: nx.Graph, pos: dict, filename: str, node_color=None, title="Change me"
+):
     """Draw a graph, with the choice of including communities or not"""
 
     plt.figure(figsize=(15, 10))
     plt.axis("off")
-    if communities is not None:
-        # Coloring every node such that communities have the same color
-        node_color_pred = [0] * len(G.nodes)
-        for idx, community in enumerate(communities):
-            for node in community:
-                node_color_pred[node] = idx
-
+    if node_color is not None:
         nx.draw_networkx_nodes(
             G=G,
             pos=pos,
             node_size=100,
-            cmap=plt.cm.RdYlBu,
-            node_color=node_color_pred,
+            cmap=plt.cm.rainbow,
+            node_color=node_color,
             linewidths=0.5,
             edgecolors="black",
         )
@@ -33,8 +29,32 @@ def draw_graph(G: nx.Graph, pos: dict, filename: str, communities=None):
         )
         nx.draw_networkx_edges(G=G, pos=pos, alpha=0.3)
 
+    plt.title(f"{title}")
     plt.savefig(f"plots/{filename}.png")
     plt.close()  # Use plot.show() if we want to show it
+
+
+def gt_pred_same_colors(
+    G: nx.Graph, gt_coms: list, pred_coms: list, mapping_list: list
+):
+    # Coloring every node such that communities have the same color
+    node_color_gt = [-1] * len(G.nodes)
+    for idx, community in enumerate(gt_coms):
+        for node in community:
+            node_color_gt[node] = idx
+
+    node_color_pred = [-1] * len(G.nodes)
+    for idx, community in enumerate(pred_coms):
+        for node in community:
+            if idx in mapping_list:
+                node_color_pred[node] = mapping_list.index(idx)
+            else:  # For cases where a predicted community was never most similar with a gt community,
+                # we need the misclassified communities to also have the same color
+                node_color_pred[node] = (
+                    idx + len(gt_coms)
+                )  # By adding the above two, the wrong pred_coms will not have the same color as the gt_coms
+
+    return node_color_gt, node_color_pred
 
 
 def lineplot_fairness(
