@@ -42,7 +42,11 @@ def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
     y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping_list)
 
     return precision_recall_fscore_support(
-        y_true, y_pred, average=None, labels=list(range(len(gt_communities))), zero_division=0
+        y_true,
+        y_pred,
+        average=None,
+        labels=list(range(len(gt_communities))),
+        zero_division=0,
     )
 
 
@@ -152,9 +156,15 @@ def calculate_fairness_metrics(
         fractions_type1, fractions_type2 = split_types(
             distribution_fraction=achieved_fractions, comm_types=comm_types
         )
-        f1_type1, f1_type2 = split_types(distribution_fraction=f1_per_comm, comm_types=comm_types)
-        precision_type1, precision_type2 = split_types(distribution_fraction=precision, comm_types=comm_types)
-        recall_type1, recall_type2 = split_types(distribution_fraction=recall, comm_types=comm_types)
+        f1_type1, f1_type2 = split_types(
+            distribution_fraction=f1_per_comm, comm_types=comm_types
+        )
+        precision_type1, precision_type2 = split_types(
+            distribution_fraction=precision, comm_types=comm_types
+        )
+        recall_type1, recall_type2 = split_types(
+            distribution_fraction=recall, comm_types=comm_types
+        )
         return (
             emd_fairness_score,
             f1_fairness_score,
