@@ -6,7 +6,12 @@ from collections import Counter
 
 
 def draw_graph(
-    G: nx.Graph, pos: dict, filename: str, node_color=None, title="Change me"
+    G: nx.Graph,
+    pos: dict,
+    filename: str,
+    node_color=None,
+    communities=None,
+    title="Change me",
 ):
     """Draw a graph, with the choice of including communities or not"""
 
@@ -22,14 +27,28 @@ def draw_graph(
             linewidths=0.5,
             edgecolors="black",
         )
-        nx.draw_networkx_edges(G=G, pos=pos, alpha=0.3)
+    elif communities is not None:
+        # Coloring every node such that communities have the same color
+        node_color = [0] * len(G.nodes)
+        for idx, community in enumerate(communities):
+            for node in community:
+                node_color[node] = idx
+        nx.draw_networkx_nodes(
+            G=G,
+            pos=pos,
+            node_size=100,
+            cmap=plt.cm.RdYlBu,
+            node_color=node_color,
+            linewidths=0.5,
+            edgecolors="black",
+        )
     else:
         nx.draw_networkx_nodes(
             G=G, pos=pos, node_size=100, linewidths=0.5, edgecolors="black"
         )
-        nx.draw_networkx_edges(G=G, pos=pos, alpha=0.3)
 
-    plt.title(f"{title}")
+    nx.draw_networkx_edges(G=G, pos=pos, alpha=0.3)
+    plt.title(f"{title}", fontsize=24)
     plt.savefig(f"plots/{filename}.png")
     plt.close()  # Use plot.show() if we want to show it
 
@@ -50,8 +69,8 @@ def gt_pred_same_colors(
                 node_color_pred[node] = mapping_list.index(idx)
             else:  # For cases where a predicted community was never most similar with a gt community,
                 # we need the misclassified communities to also have the same color
-                node_color_pred[node] = (
-                    idx + len(gt_coms)
+                node_color_pred[node] = idx + len(
+                    gt_coms
                 )  # By adding the above two, the wrong pred_coms will not have the same color as the gt_coms
 
     return node_color_gt, node_color_pred
@@ -64,6 +83,7 @@ def lineplot_fairness(
     x_axis: list,
     xlabel: str,
     noline: bool,
+    filename: str,
     title="Fairness scores per ...",
 ):
     """
@@ -75,6 +95,7 @@ def lineplot_fairness(
     :param x_axis: List, values for the x-axis
     :param xlabel: String, x-axis label
     :parm noline: Boolean indicating if we don't want a line plot
+    :param filename: String, name of file to be saved
     :param title: String, title of the plot
     :return: Matplotlib plot
     """
@@ -91,26 +112,30 @@ def lineplot_fairness(
     plt.ylabel("Fairness scores")
     plt.ylim(bottom=0)
     plt.title(f"{title}")
-    plt.show()
+    plt.savefig(f"plots/{filename}.png")
+    plt.close()  # Use plot.show() if we want to show it
 
 
 def plot_heatmap(
     data: np.array,
     title: str,
+    filename: str,
 ):
     """
     Plot a heatmap for the synthetic case of misclassifying nodes in the minor or major community.
 
     :param data: Tabular data (NumPy array or Pandas DataFrame) containing the fairness values
     :param title: String, title of the plot
+    :param filename: String, name of file to be saved
     :return: Matplotlib plot
     """
     ax = sns.heatmap(data, cmap="crest_r")
     ax.invert_yaxis()
-    ax.set_xlabel("Number of misclassified nodes in major community")
-    ax.set_ylabel("Number of misclassified nodes in minor community")
+    ax.set_xlabel("Number of misclassified nodes in minor community")
+    ax.set_ylabel("Number of misclassified nodes in major community")
     plt.title(f"{title}")
-    plt.show()
+    plt.savefig(f"plots/{filename}.png")
+    plt.close()  # Use plot.show() if we want to show it
 
 
 def scatterplot_fairness(
