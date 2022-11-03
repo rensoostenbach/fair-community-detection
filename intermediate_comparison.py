@@ -3,11 +3,16 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 from cdlib.algorithms import eigenvector, label_propagation, leiden, louvain, spinglass
-from cdlib.evaluation import adjusted_rand_index, variation_of_information, f1
+from cdlib.evaluation import adjusted_rand_index, variation_of_information
 from cdlib import NodeClustering
 
 from metrics.own_metric import calculate_fairness_metrics
 from utils import scatterplot_fairness
+
+"""
+This file will give us an indication of what we can expect in the rest of the research
+in terms of the comparison between community detection methods in terms of fairness and accuracy.
+"""
 
 CD_METHODS = [eigenvector, label_propagation, leiden, louvain, spinglass]
 PERCENTILE = 75
@@ -17,7 +22,7 @@ accuracy_scores = {}
 for fairness_type in ["density", "size"]:
     with open(f"data/labeled/lfr/{fairness_type}_seeds.txt") as seeds_file:
         seeds = [line.rstrip() for line in seeds_file]
-    seeds = seeds[:5]  # First 5 for now, for speed purposes
+    seeds = seeds[:50]  # First 50 for now, for speed purposes
     for cd_method in CD_METHODS:
         print(f"Starting with {cd_method.__name__}")
         emd = []
@@ -62,11 +67,12 @@ for fairness_type in ["density", "size"]:
         accuracy_scores[cd_method.__name__] = (ari, vi)
 
     # Now we make scatterplots of accuracy vs fairness
-    for i in range(3):
-        for j in range(2):
+    for evaluation_metric in ["ARI", "VI"]:
+        for fairness_metric in ["EMD", "F1", "ACC"]:
             scatterplot_fairness(
                 fairness_scores=fairness_scores,
                 accuracy_scores=accuracy_scores,
-                fairness_type=i,
-                accuracy_type=j,
+                fairness_metric=fairness_metric,
+                evaluation_metric=evaluation_metric,
+                filename=f"Scatterplot_{fairness_type}_{evaluation_metric}_{fairness_metric}",
             )

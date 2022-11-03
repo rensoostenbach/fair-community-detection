@@ -141,28 +141,32 @@ def plot_heatmap(
 def scatterplot_fairness(
     fairness_scores: dict,
     accuracy_scores: dict,
-    fairness_type: int,
-    accuracy_type: int,
+    fairness_metric: str,
+    evaluation_metric: str,
+    filename: str,
 ):
     """
 
     :param fairness_scores: Dictionary containing fairness scores per method and fairness type
     :param accuracy_scores: Dictionary containing accuracy values per method and accuracy type
-    :param fairness_type: 0 for EMD, 1 for F1, 2 for ACC
-    :param accuracy_type: 0 for ARI, 1 for VI
+    :param fairness_metric: String indicating fairness type: EMD, F1, ACC
+    :param evaluation_metric: String indicating evaluation metrics: ARI, VI (for now)
+    :param filename: Filename of plot that will be saved
     :return: Matplotlib plot
     """
+    fairness_metrics = {"EMD": 0, "F1": 1, "ACC": 2}
+    evaluation_metrics = {"ARI": 0, "VI": 1}
     for method, scores in fairness_scores.items():
-        fairness_score = [x[fairness_type] for x in scores]
-        acc_score_list = [x for x in accuracy_scores[method]][accuracy_type]
+        fairness_score = [x[fairness_metrics[fairness_metric]] for x in scores]
+        acc_score_list = [x for x in accuracy_scores[method]][evaluation_metrics[evaluation_metric]]
         acc_score = [x.score for x in acc_score_list]
         plt.scatter(np.mean(fairness_score), np.mean(acc_score), label=f"{method}")
 
-    plt.xlabel(f"Average Fairness score of type {fairness_type}")
-    plt.ylabel(f"Accuracy of type {accuracy_type}")
-    plt.title(f"Accuracy vs Fairness")
+    plt.xlabel(f"Average Fairness score of type {fairness_metric}")
+    plt.ylabel(f"Accuracy of type {evaluation_metric}")
+    plt.title(f"{evaluation_metric} vs {fairness_metric} Fairness")
     plt.xlim(0, 1)
-    if accuracy_type != 1:
+    if evaluation_metric != "VI":
         plt.ylim(0, 1)
     else:  # Variation of information, need to set different bound than 1.
         max_vi = 0
@@ -174,7 +178,8 @@ def scatterplot_fairness(
                     max_vi = vi
         plt.ylim(0, max_vi)
     plt.legend()
-    plt.show()
+    plt.savefig(f"plots/{filename}.png")
+    plt.close()  # Use plot.show() if we want to show it
 
 
 def interesting_playground_graphs(
