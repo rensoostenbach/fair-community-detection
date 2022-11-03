@@ -178,7 +178,6 @@ def mislabel_nodes(G: nx.Graph, mislabel_comm_nodes: dict, percentile=75):
 
     # We make a dictionary of the original communities, which is where we pick the nodes from to misclassify
     original_comms = {}
-    modified_comms = {}
     for comm_type in comm_types:
         original_comms[comm_type] = communities[(comm_types.index(comm_type))]
 
