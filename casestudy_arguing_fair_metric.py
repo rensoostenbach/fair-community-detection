@@ -10,11 +10,15 @@ from data.labeled.casestudy.synthetic_graphs import (
 )
 from metrics.own_metric import calculate_fairness_metrics
 
+"""
+This file is used to generate synthetic situations such that we can argue about our fairness metrics.
+Different plots are created to visualize these situations, and to provide intuition behind the metrics.
+"""
 
 # Varying mu values for pre-specified community sizes
-num_small = 30
-num_large = 30
-mus = np.linspace(0.01, 0.5, 15)
+# num_small = 30
+# num_large = 30
+# mus = np.linspace(0.01, 0.5, 15)
 # graphs = varying_mu_values(num_nodes_G1=num_small, num_nodes_G2=num_large, mus=mus)
 
 
@@ -105,8 +109,8 @@ for num_small in num_smalls:
         gt_communities = list(communities)
 
         #  Not important drawing stuff, just for myself
-        # pos = nx.spring_layout(G)  # compute graph layout
-        # draw_graph(G, pos=pos, communities=communities)
+        pos = nx.spring_layout(G)  # compute graph layout
+        # draw_graph(G, pos=pos, communities=communities, filename=f"var_small_comm_size_{num_small}")
 
         mislabel_comm_nodes = {
             "small": 10
@@ -121,7 +125,14 @@ for num_small in num_smalls:
         }
 
         #  Not important drawing stuff, just for myself
-        # draw_graph(G_mislabeled, pos=pos, communities=mislabeled_communities)
+        draw_graph(
+            G_mislabeled,
+            pos=pos,
+            communities=mislabeled_communities,
+            filename=f"varying_small_comm_size_{num_small}",
+            title=f"Graph with 10 misclassified nodes in small community\n"
+            f"N_large=100, N_small={num_small}",
+        )
 
         (
             emd_fairness_score,
@@ -146,6 +157,7 @@ lineplot_fairness(
     x_axis=num_smalls,
     xlabel="Size of small community",
     noline=False,
+    filename="varying_small_comm_sizes_lineplot",
     title=f"Fairness score per small community sizes\n"
     f"(N_large: {num_large} nodes, 10 nodes are misclassified in small community)",
 )
@@ -161,8 +173,15 @@ for G in graph:
     gt_communities = list(communities)
 
     #  Not important drawing stuff, just for myself
-    # pos = nx.spring_layout(G)  # compute graph layout
-    # draw_graph(G, pos=pos, filename=f"initial_graph", communities=communities)
+    pos = nx.spring_layout(G)  # compute graph layout
+    draw_graph(
+        G,
+        pos=pos,
+        filename=f"varying_misclassified_nodes_initial_graph",
+        communities=communities,
+        title="Initial graph of varying misclassified nodes\n"
+        "in small or large community, N_small=25, N_large=50",
+    )
 
     misclassified_nodes = list(range(0, 21))
     small_large = ["small", "large"]
@@ -184,12 +203,13 @@ for G in graph:
             }
 
             #  Not important drawing stuff, just for myself
-            # draw_graph(
-            #     G_mislabeled,
-            #     pos=pos,
-            #     filename=f"large_{num_misclassified_nodes_large}_small_{num_misclassified_nodes_small}",
-            #     communities=mislabeled_communities,
-            # )
+            draw_graph(
+                G_mislabeled,
+                pos=pos,
+                filename=f"varying_misclassified_nodes_{size}_{num_misclassified_nodes}",
+                communities=mislabeled_communities,
+                title=f"Graph with {num_misclassified_nodes} misclassified nodes in {size} community",
+            )
 
             (
                 emd_fairness_score,
@@ -214,6 +234,7 @@ for G in graph:
             x_axis=misclassified_nodes,
             xlabel=f"Number of misclassified nodes in {size} community",
             noline=False,
+            filename=f"varying_misclassified_nodes_lineplot_{size}",
             title=f"Fairness score per number of misclassified nodes in {size} community\n"
             f"N_small={num_small}, N_large={num_large}",
         )
@@ -229,8 +250,15 @@ for G in graph:
     gt_communities = list(communities)
 
     #  Not important drawing stuff, just for myself
-    # pos = nx.spring_layout(G)  # compute graph layout
-    # draw_graph(G, pos=pos, filename="initial_graph", communities=communities)
+    pos = nx.spring_layout(G)  # compute graph layout
+    draw_graph(
+        G,
+        pos=pos,
+        filename="varying_misclassified_nodes_small_large_initial_graph",
+        title="Initial graph of varying misclassified nodes\n"
+        "in small and large community, N_small=25, N_large=50",
+        communities=communities,
+    )
 
     misclassified_nodes = list(range(0, 21))
     small_large = ["small", "large"]
@@ -255,12 +283,14 @@ for G in graph:
             }
 
             #  Not important drawing stuff, just for myself
-            # draw_graph(
-            #     G_mislabeled,
-            #     pos=pos,
-            #     filename=f"large_{num_misclassified_nodes_large}_small_{num_misclassified_nodes_small}",
-            #     communities=mislabeled_communities,
-            # )
+            draw_graph(
+                G_mislabeled,
+                pos=pos,
+                filename=f"varying_misclassified_nodes_small_large_{num_misclassified_nodes_small}_{num_misclassified_nodes_large}",
+                communities=mislabeled_communities,
+                title=f"Graph with misclassified nodes in small and large community\n"
+                f"Misclassified in small: {num_misclassified_nodes_small}, misclassified in large: {num_misclassified_nodes_large}",
+            )
 
             (
                 emd_fairness_score,
@@ -303,8 +333,9 @@ for G in graph:
 
     plot_heatmap(
         data=f1_arr,
-        title="F1 Fairness values for misclassifying\n"
-        "nodes in major vs minor community",
+        title="F1 Fairness values for misclassifying nodes\n"
+        "in major (N=50) vs minor (N=25) community",
+        filename="varying_misclassified_nodes_small_large_heatmap_f1",
     )
 
     acc_arr = np.empty((len(misclassified_nodes), len(misclassified_nodes)))
@@ -313,6 +344,7 @@ for G in graph:
 
     plot_heatmap(
         data=acc_arr,
-        title="Acc Fairness values for misclassifying\n"
-        "nodes in major vs minor community",
+        title="Accuracy Fairness values for misclassifying nodes\n"
+        "in major (N=50) vs minor (N=25) community",
+        filename="varying_misclassified_nodes_small_large_heatmap_acc",
     )
