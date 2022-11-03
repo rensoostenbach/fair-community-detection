@@ -110,7 +110,10 @@ for num_small in num_smalls:
 
         #  Not important drawing stuff, just for myself
         pos = nx.spring_layout(G)  # compute graph layout
-        # draw_graph(G, pos=pos, communities=communities, filename=f"var_small_comm_size_{num_small}")
+        draw_graph(G, pos=pos, communities=communities, filename=f"varying_small_comm_size_initial_graph_{num_small}",
+                   title="Initial graph of varying small community size\n"
+                         f"and misclassifying nodes in small community, N_small={num_small}, N_large=100",
+                   )
 
         mislabel_comm_nodes = {
             "small": 10
