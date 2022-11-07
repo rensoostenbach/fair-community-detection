@@ -351,3 +351,14 @@ for G in graph:
         "in major (N=50) vs minor (N=25) community",
         filename="varying_misclassified_nodes_small_large_heatmap_acc",
     )
+
+    emd_arr = np.empty((len(misclassified_nodes), len(misclassified_nodes)))
+    for large, small, score in emd:
+        emd_arr[large][small] = score
+
+    plot_heatmap(
+        data=emd_arr,
+        title="EMD Fairness values for misclassifying nodes\n"
+        "in major (N=50) vs minor (N=25) community",
+        filename="varying_misclassified_nodes_small_large_heatmap_emd",
+    )
