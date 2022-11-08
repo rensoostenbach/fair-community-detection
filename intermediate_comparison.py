@@ -16,13 +16,13 @@ in terms of the comparison between community detection methods in terms of fairn
 
 CD_METHODS = [eigenvector, label_propagation, leiden, louvain, spinglass]
 PERCENTILE = 75
-fairness_scores = {}
-accuracy_scores = {}
 
 for fairness_type in ["density", "size"]:
+    fairness_scores = {}
+    evaluation_scores = {}
     with open(f"data/labeled/lfr/{fairness_type}_seeds.txt") as seeds_file:
         seeds = [line.rstrip() for line in seeds_file]
-    seeds = seeds[:50]  # First 50 for now, for speed purposes
+    # seeds = seeds[:50]  # First 50 for now, for speed purposes
     for cd_method in CD_METHODS:
         print(f"Starting with {cd_method.__name__}")
         emd = []
@@ -43,7 +43,15 @@ for fairness_type in ["density", "size"]:
                 cdlib_communities = NodeClustering(communities=gt_communities, graph=G)
 
                 # CD part
-                pred_coms = cd_method(g_original=G)
+                try:
+                    pred_coms = cd_method(g_original=G)
+                except Exception:  # In case of convergence error or something else
+                    emd.append(None)
+                    f1.append(None)
+                    acc.append(None)
+                    ari.append(None)
+                    vi.append(None)
+                    continue
 
                 (
                     emd_fairness_score,
@@ -64,14 +72,14 @@ for fairness_type in ["density", "size"]:
                 vi.append(variation_of_information(cdlib_communities, pred_coms))
 
         fairness_scores[cd_method.__name__] = (emd, f1, acc)
-        accuracy_scores[cd_method.__name__] = (ari, vi)
+        evaluation_scores[cd_method.__name__] = (ari, vi)
 
     # Now we make scatterplots of accuracy vs fairness
     for evaluation_metric in ["ARI", "VI"]:
         for fairness_metric in ["EMD", "F1", "ACC"]:
             scatterplot_fairness(
                 fairness_scores=fairness_scores,
-                accuracy_scores=accuracy_scores,
+                evaluation_scores=evaluation_scores,
                 fairness_metric=fairness_metric,
                 evaluation_metric=evaluation_metric,
                 filename=f"Scatterplot_{fairness_type}_{evaluation_metric}_{fairness_metric}",
