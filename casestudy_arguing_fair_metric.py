@@ -186,10 +186,10 @@ for G in graph:
         "in small or large community, N_small=25, N_large=50",
     )
 
-    misclassified_nodes = list(range(0, 21))
     small_large = ["small", "large"]
 
     for size in small_large:
+        misclassified_nodes = list(range(eval(f"num_{size}")))
         emd = []
         f1 = []
         acc = []
@@ -263,14 +263,13 @@ for G in graph:
         communities=communities,
     )
 
-    misclassified_nodes = list(range(0, 21))
     small_large = ["small", "large"]
     emd = []
     f1 = []
     acc = []
 
-    for num_misclassified_nodes_large in misclassified_nodes:
-        for num_misclassified_nodes_small in misclassified_nodes:
+    for num_misclassified_nodes_large in range(num_large):
+        for num_misclassified_nodes_small in range(num_small):
             mislabel_comm_nodes = {
                 "small": num_misclassified_nodes_small,
                 "large": num_misclassified_nodes_large,
@@ -330,7 +329,7 @@ for G in graph:
             )
 
     # Creating array for F1 heatmap
-    f1_arr = np.empty((len(misclassified_nodes), len(misclassified_nodes)))
+    f1_arr = np.empty((num_large, num_small))
     for large, small, score in f1:
         f1_arr[large][small] = score
 
@@ -341,7 +340,7 @@ for G in graph:
         filename="varying_misclassified_nodes_small_large_heatmap_f1",
     )
 
-    acc_arr = np.empty((len(misclassified_nodes), len(misclassified_nodes)))
+    acc_arr = np.empty((num_large, num_small))
     for large, small, score in acc:
         acc_arr[large][small] = score
 
@@ -352,7 +351,7 @@ for G in graph:
         filename="varying_misclassified_nodes_small_large_heatmap_acc",
     )
 
-    emd_arr = np.empty((len(misclassified_nodes), len(misclassified_nodes)))
+    emd_arr = np.empty((num_large, num_small))
     for large, small, score in emd:
         emd_arr[large][small] = score
 
