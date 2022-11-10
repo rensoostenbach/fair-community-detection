@@ -187,7 +187,9 @@ def scatterplot_fairness(
         max_vi = 0
         for score in evaluation_scores.values():
             matchingresult_per_method = score[1]
-            vi_per_method = [x.score for x in matchingresult_per_method if x is not None]
+            vi_per_method = [
+                x.score for x in matchingresult_per_method if x is not None
+            ]
             for vi in vi_per_method:
                 if vi > max_vi:
                     max_vi = vi
