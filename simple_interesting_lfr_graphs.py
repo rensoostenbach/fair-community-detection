@@ -113,7 +113,9 @@ for fairness_type in fairness_types:
                 mapping_list=mapping_list,
             )
 
-        elif f1_fairness_score - emd_fairness_score > 0.3 and emd_fairness_score < 0.5:
+        elif (
+            f1_fairness_score - emd_fairness_score > 0.3 and emd_fairness_score < 0.5
+        ) or accuracy_fairness_score < 0.6:
             interesting_playground_graphs(
                 fair_unfair="unfair",
                 fairness_type=fairness_type,
@@ -147,6 +149,7 @@ for fairness_type in fairness_types:
         xlabel="Generated graph number",
         noline=True,
         title=f"{fairness_type} fairness score for generated graphs",
+        filename=f"lineplot_simple_interesting_lfr_graphs_{fairness_type}",
     )
 
 

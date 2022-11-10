@@ -103,16 +103,18 @@ def lineplot_fairness(
         plt.plot(x_axis, emd, "s", label="EMD Fairness")
         plt.plot(x_axis, f1, "s", label="F1 Fairness")
         plt.plot(x_axis, acc, "s", label="Accuracy fairness")
+        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     else:
         plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
         plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
         plt.plot(x_axis, acc, label="Accuracy fairness", marker=".")
-    plt.legend()
+        plt.legend()
+
     plt.xlabel(f"{xlabel}")
     plt.ylabel("Fairness scores")
     plt.ylim(bottom=0)
     plt.title(f"{title}")
-    plt.savefig(f"plots/{filename}.png")
+    plt.savefig(f"plots/{filename}.png", bbox_inches="tight")
     plt.close()  # Use plot.show() if we want to show it
 
 
