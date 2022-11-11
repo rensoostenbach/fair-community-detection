@@ -102,12 +102,12 @@ def lineplot_fairness(
     if noline:
         plt.plot(x_axis, emd, "s", label="EMD Fairness")
         plt.plot(x_axis, f1, "s", label="F1 Fairness")
-        plt.plot(x_axis, acc, "s", label="Accuracy fairness")
+        plt.plot(x_axis, acc, "s", label="FCC Fairness")
         plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     else:
         plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
         plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
-        plt.plot(x_axis, acc, label="Accuracy fairness", marker=".")
+        plt.plot(x_axis, acc, label="FCC Fairness", marker=".")
         plt.legend()
 
     plt.xlabel(f"{xlabel}")
@@ -151,12 +151,12 @@ def scatterplot_fairness(
 
     :param fairness_scores: Dictionary containing fairness scores per method and fairness type
     :param evaluation_scores: Dictionary containing accuracy values per method and accuracy type
-    :param fairness_metric: String indicating fairness type: EMD, F1, ACC
+    :param fairness_metric: String indicating fairness type: EMD, F1, FCC
     :param evaluation_metric: String indicating evaluation metrics: ARI, VI (for now)
     :param filename: Filename of plot that will be saved
     :return: Matplotlib plot
     """
-    fairness_metrics = {"EMD": 0, "F1": 1, "ACC": 2}
+    fairness_metrics = {"EMD": 0, "F1": 1, "FCC": 2}
     evaluation_metrics = {"ARI": 0, "VI": 1}
     for method, scores in fairness_scores.items():
         fairness_score = [
