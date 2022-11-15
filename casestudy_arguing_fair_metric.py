@@ -26,32 +26,35 @@ Different plots are created to visualize these situations, and to provide intuit
 # However, below code keeps a fixed graph and varies the number of misclassified nodes
 # This produces a nice graph, but manually mislabeling in density does not make that much sense
 
-# num_dense_nodes = 40
-# num_sparse_nodes = 50
-# densenesses_G1 = [0.3]
-# densenesses_G2 = [0.1]
-# density_cutoff = 0.2
-# inter_community_edges = 0.05
-# graphs = varying_denseness(
-#     num_nodes_G1=num_dense_nodes,
-#     num_nodes_G2=num_sparse_nodes,
-#     densenesses_G1=densenesses_G1,
-#     densenesses_G2=densenesses_G2,
-#     inter_community_edges=inter_community_edges,
-# )
-#
-# for G in graphs:
-#     communities = {frozenset(G.nodes[v]["community"]) for v in G}
-#     gt_communities = list(communities)
-#
-#     #  Not important drawing stuff, just for myself
-#     pos = nx.spring_layout(G)  # compute graph layout
-#     draw_graph(G, pos=pos, communities=communities)
-#
-#     emd = []
-#     f1 = []
-#     acc = []
-#     misclassified_nodes = list(range(0, 22, 2))
+num_dense_nodes = 80
+num_sparse_nodes = 40
+densenesses_G1 = [0.4]
+densenesses_G2 = [0.2]
+density_cutoff = 0.2
+inter_community_edges = 0.05
+graphs = varying_denseness(
+    num_nodes_G1=num_dense_nodes,
+    num_nodes_G2=num_sparse_nodes,
+    densenesses_G1=densenesses_G1,
+    densenesses_G2=densenesses_G2,
+    inter_community_edges=inter_community_edges,
+)
+
+for G in graphs:
+    communities = {frozenset(G.nodes[v]["community"]) for v in G}
+    gt_communities = list(communities)
+
+    #  Not important drawing stuff, just for myself
+    pos = nx.spring_layout(G)  # compute graph layout
+    draw_graph(G, pos=pos, communities=communities,
+               filename=f"varying_density_size",
+               title="Two communities with different sizes and density",
+               )
+
+    emd = []
+    f1 = []
+    acc = []
+    misclassified_nodes = list(range(0, 22, 2))
 #
 #     for num_misclassified_nodes in misclassified_nodes:
 #         print(f"Number of misclassified nodes: {num_misclassified_nodes}")
