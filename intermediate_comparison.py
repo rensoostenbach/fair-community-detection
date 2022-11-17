@@ -82,5 +82,6 @@ for fairness_type in ["density", "size"]:
                 evaluation_scores=evaluation_scores,
                 fairness_metric=fairness_metric,
                 evaluation_metric=evaluation_metric,
+                title=f"{evaluation_metric} vs {fairness_metric} {fairness_type} Fairness",
                 filename=f"Scatterplot_{fairness_type}_{evaluation_metric}_{fairness_metric}",
             )

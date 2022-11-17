@@ -145,6 +145,7 @@ def scatterplot_fairness(
     evaluation_scores: dict,
     fairness_metric: str,
     evaluation_metric: str,
+    title: str,
     filename: str,
 ):
     """
@@ -179,7 +180,7 @@ def scatterplot_fairness(
 
     plt.xlabel(f"Average Fairness score of type {fairness_metric}")
     plt.ylabel(f"Accuracy of type {evaluation_metric}")
-    plt.title(f"{evaluation_metric} vs {fairness_metric} Fairness")
+    plt.title(title)
     plt.xlim(0, 1)
     if evaluation_metric != "VI":
         plt.ylim(0, 1)
