@@ -174,3 +174,8 @@ cython_debug/
 /data/**/*.txt
 /data/**/*.gz
 /data/**/*.pickle
+
+# Results
+/results/**/*.py
+/results/**/*.zip
+/results/**/keepdir
