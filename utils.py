@@ -250,6 +250,19 @@ def interesting_playground_graphs(
     print(f"Mapping list: {mapping_list},\ncomm_types: {comm_types}\n\n")
 
 
+def find_community(node_u: int, communities: list):
+    """
+    Find the community that node_u belongs to.
+    :param node_u:
+    :param communities:
+    :return:
+    """
+    for idx, community in enumerate(communities):
+        for node in community:
+            if node == node_u:
+                return idx
+
+
 def small_large_communities(communities: list, percentile: int):
     """
     Decide which communities are small ones and large ones, based on a percentile cutoff value.
