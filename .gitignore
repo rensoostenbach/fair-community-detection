@@ -177,5 +177,6 @@ cython_debug/
 
 # Results
 /results/**/*.py
+!/results/intermediate_results.py
 /results/**/*.zip
 /results/**/keepdir
