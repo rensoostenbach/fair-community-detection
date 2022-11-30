@@ -4,8 +4,8 @@ from utils import scatterplot_fairness
 
 
 results = []
-
-for root, dirs, files in os.walk("Intermediate comparison"):
+results_directory = "Intermediate comparison Ray"
+for root, dirs, files in os.walk(results_directory):
     for file in files:
         if file.endswith(".pickle"):
             results.append(os.path.join(root, file))
@@ -16,13 +16,10 @@ size_evaluation_scores = {}
 density_fairness_scores = {}
 density_evaluation_scores = {}
 for result in results:
-    filename_splitted = os.path.basename(result).split("_")
+    filename_splitted = os.path.basename(result).split("-")
     with open(result, "rb") as pickled_results:
         pickled_scores = pickle.load(pickled_results)
-        try:
-            eval(f"{filename_splitted[0]}_{filename_splitted[2]}_scores")[filename_splitted[1]] = pickled_scores
-        except NameError:  # Happens for methods with underscore in them, label_propagation for now
-            eval(f"{filename_splitted[0]}_{filename_splitted[3]}_scores")["label_propagation"] = pickled_scores
+        eval(f"{filename_splitted[0]}_{filename_splitted[2]}_scores")[filename_splitted[1]] = pickled_scores
 
 # Now we make scatterplots of accuracy vs fairness
 for fairness_type in ["density", "size"]:
@@ -34,5 +31,5 @@ for fairness_type in ["density", "size"]:
                 fairness_metric=fairness_metric,
                 evaluation_metric=evaluation_metric,
                 title=f"{evaluation_metric} vs {fairness_metric} {fairness_type} Fairness",
-                filename=f"Scatterplot_{fairness_type}_{evaluation_metric}_{fairness_metric}",
+                filename=f"{results_directory}/Scatterplot_{fairness_type}_{evaluation_metric}_{fairness_metric}",
             )
