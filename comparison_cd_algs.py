@@ -33,7 +33,7 @@ CD_METHODS = {
     async_fluid: [None],
     infomap: None,
     walktrap: None,
-    girvan_newman: [3],
+    girvan_newman: [3],  # Took 20 minutes for ONE dataset! Very slow, not sure if I should include it
     em: [None],
     # scan: [0.7, 3],
     gdmp2: None,
