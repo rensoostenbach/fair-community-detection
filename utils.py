@@ -458,7 +458,7 @@ def split_types(distribution_fraction: list, comm_types: list):
 
 def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list: list):
     """
-    Transform the ground-truth communties and predicted communities to y_true and y_pred sklearn format,
+    Transform the ground-truth communities and predicted communities to y_true and y_pred sklearn format,
     so we can calculate the F1 score.
 
     :param gt_communities: List containing the ground-truth communities
@@ -489,6 +489,13 @@ def transform_to_ytrue_ypred(gt_communities: list, pred_coms: list, mapping_list
                 y_pred[node] = -1
 
     return y_true, y_pred
+
+
+def transform_sklearn_labels_to_communities(labels: list):
+    pred_coms = [[] for i in range(len(np.unique(labels)))]
+    for idx, label in enumerate(labels):
+        pred_coms[label].append(idx)
+    return pred_coms
 
 
 def classify_graph(G: nx.Graph, percentile: int):
