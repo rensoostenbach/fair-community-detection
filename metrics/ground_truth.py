@@ -54,7 +54,9 @@ def total_nodal_weights(G: nx.Graph, real_coms: list):
     return w
 
 
-def modified_purity_node(node_u: int, pred_coms: list, real_coms: list, mapping_list: list):
+def modified_purity_node(
+    node_u: int, pred_coms: list, real_coms: list, mapping_list: list
+):
     real_comm = find_community(node_u=node_u, communities=real_coms)
     pred_comm = find_community(node_u=node_u, communities=pred_coms)
     return int(mapping_list[real_comm] == pred_comm)
@@ -73,7 +75,7 @@ def modified_purity(pred_coms, real_coms, G: nx.Graph):
                 mapping_list=mapping_list,
             )
             w_u = nodal_weights(node_u=node, real_coms=real_coms, G=G)
-            modified_purity_score += (w_u/w) * mod_pur_node
+            modified_purity_score += (w_u / w) * mod_pur_node
     return modified_purity_score
 
 
@@ -119,7 +121,9 @@ def modified_ari(pred_coms: list, real_coms: list, G: nx.Graph):
     for pred_com in pred_coms:
         for real_com in real_coms:
             nodes_subset = set(pred_com).intersection(set(real_com))
-            W_omega_c += paired_nodal_weights(nodes_subset=nodes_subset, real_coms=real_coms, G=G)
+            W_omega_c += paired_nodal_weights(
+                nodes_subset=nodes_subset, real_coms=real_coms, G=G
+            )
 
     W_V = paired_nodal_weights(nodes_subset=G.nodes, real_coms=real_coms, G=G)
 

@@ -19,7 +19,9 @@ for result in results:
     filename_splitted = os.path.basename(result).split("-")
     with open(result, "rb") as pickled_results:
         pickled_scores = pickle.load(pickled_results)
-        eval(f"{filename_splitted[0]}_{filename_splitted[2]}_scores")[filename_splitted[1]] = pickled_scores
+        eval(f"{filename_splitted[0]}_{filename_splitted[2]}_scores")[
+            filename_splitted[1]
+        ] = pickled_scores
 
 # Now we make scatterplots of accuracy vs fairness
 for fairness_type in ["density", "size"]:

@@ -46,10 +46,13 @@ for G in graphs:
 
     #  Not important drawing stuff, just for myself
     pos = nx.spring_layout(G)  # compute graph layout
-    draw_graph(G, pos=pos, communities=communities,
-               filename=f"varying_density_size",
-               title="Two communities with different sizes and density",
-               )
+    draw_graph(
+        G,
+        pos=pos,
+        communities=communities,
+        filename=f"varying_density_size",
+        title="Two communities with different sizes and density",
+    )
 
     emd = []
     f1 = []

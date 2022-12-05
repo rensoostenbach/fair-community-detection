@@ -3,7 +3,14 @@ import networkx as nx
 import ray
 from datetime import datetime
 from itertools import product
-from cdlib.algorithms import eigenvector, label_propagation, leiden, louvain, spinglass, infomap
+from cdlib.algorithms import (
+    eigenvector,
+    label_propagation,
+    leiden,
+    louvain,
+    spinglass,
+    infomap,
+)
 from cdlib.evaluation import adjusted_rand_index, variation_of_information
 from cdlib import NodeClustering
 
@@ -26,7 +33,9 @@ ray.init()
 def evaluate_method(config):
     cd_method = config[0]
     fairness_type = config[1]
-    print(f"{datetime.now()}: Starting with {cd_method.__name__} for fairness type {fairness_type}")
+    print(
+        f"{datetime.now()}: Starting with {cd_method.__name__} for fairness type {fairness_type}"
+    )
     with open(f"data/labeled/lfr/{fairness_type}_seeds.txt") as seeds_file:
         seeds = [line.rstrip() for line in seeds_file]
 
@@ -79,13 +88,21 @@ def evaluate_method(config):
     fairness_scores = (emd, f1, acc)
     evaluation_scores = (ari, vi)
 
-    with open(f'results/Intermediate comparison Ray/{fairness_type}-{cd_method.__name__}-fairness-scores.pickle', 'wb') as handle:
+    with open(
+        f"results/Intermediate comparison Ray/{fairness_type}-{cd_method.__name__}-fairness-scores.pickle",
+        "wb",
+    ) as handle:
         pickle.dump(fairness_scores, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    with open(f'results/Intermediate comparison Ray/{fairness_type}-{cd_method.__name__}-evaluation-scores.pickle', 'wb') as handle:
+    with open(
+        f"results/Intermediate comparison Ray/{fairness_type}-{cd_method.__name__}-evaluation-scores.pickle",
+        "wb",
+    ) as handle:
         pickle.dump(evaluation_scores, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    print(f"{datetime.now()}: Done with {cd_method.__name__} for fairness type {fairness_type}")
+    print(
+        f"{datetime.now()}: Done with {cd_method.__name__} for fairness type {fairness_type}"
+    )
 
 
 if __name__ == "__main__":
