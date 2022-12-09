@@ -10,6 +10,7 @@ def draw_graph(
     pos: dict,
     filename: str,
     node_color=None,
+    nodelist=None,
     communities=None,
     title="Change me",
 ):
@@ -18,12 +19,26 @@ def draw_graph(
     plt.figure(figsize=(15, 10))
     plt.axis("off")
     if node_color is not None:
+        node_color_correct = [node_color[i] for i in sorted(nodelist[0])]
+        node_color_incorrect = [node_color[i] for i in sorted(nodelist[1])]
         nx.draw_networkx_nodes(
             G=G,
             pos=pos,
+            nodelist=nodelist[0],  # Correct nodes
             node_size=100,
             cmap=plt.cm.rainbow,
-            node_color=node_color,
+            node_color=node_color_correct,
+            linewidths=0.5,
+            edgecolors="black",
+        )
+        nx.draw_networkx_nodes(
+            G=G,
+            pos=pos,
+            nodelist=nodelist[1],  # Incorrect nodes
+            node_size=175,
+            cmap=plt.cm.rainbow,
+            node_color=node_color_incorrect,
+            node_shape="*",
             linewidths=0.5,
             edgecolors="black",
         )
@@ -74,6 +89,23 @@ def gt_pred_same_colors(
                 )  # By adding the above two, the wrong pred_coms will not have the same color as the gt_coms
 
     return node_color_gt, node_color_pred
+
+
+def correct_incorrect_nodes(gt_coms: list, pred_coms: list, mapping_list: list):
+    correct_nodes = []
+    incorrect_nodes = []
+
+    for idx, community in enumerate(gt_coms):
+        for node in community:
+            pred_com = mapping_list[idx]
+            if pred_com == -1:
+                incorrect_nodes.append(node)
+            elif node in pred_coms[pred_com]:
+                correct_nodes.append(node)
+            else:
+                incorrect_nodes.append(node)
+
+    return correct_nodes, incorrect_nodes
 
 
 def lineplot_fairness(
@@ -226,10 +258,14 @@ def interesting_playground_graphs(
     node_color_gt, node_color_pred = gt_pred_same_colors(
         G=G, gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list
     )
+    correct_nodes, incorrect_nodes = correct_incorrect_nodes(
+        gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list
+    )
     draw_graph(
         G,
         pos=pos,
         node_color=node_color_gt,
+        nodelist=(correct_nodes, incorrect_nodes),
         filename=f"{fairness_type}_{fair_unfair}_{idx}_gt",
         title=f"Number of real communities: {len(communities)}\n"
         f"Community sizes distribution: {sorted([len(comm) for comm in communities], reverse=True)}",
@@ -238,6 +274,7 @@ def interesting_playground_graphs(
         G,
         pos=pos,
         node_color=node_color_pred,
+        nodelist=(correct_nodes, incorrect_nodes),
         filename=f"{fairness_type}_{fair_unfair}_{idx}_pred",
         title=f"Number of predicted communities: {len(pred_coms)}\n"
         f"Community sizes distribution: {sorted([len(comm) for comm in pred_coms], reverse=True)}",
