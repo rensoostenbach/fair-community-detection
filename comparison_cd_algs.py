@@ -12,6 +12,7 @@ from cdlib import NodeClustering
 
 from metrics.own_metric import calculate_fairness_metrics
 from utils import transform_sklearn_labels_to_communities
+
 """
 This file will be used to compare all CD Methods on their fairness and accuracy.
 """
@@ -33,7 +34,9 @@ CD_METHODS = {
     async_fluid: [None],
     infomap: None,
     walktrap: None,
-    girvan_newman: [3],  # Took 20 minutes for ONE dataset! Very slow, not sure if I should include it
+    girvan_newman: [
+        3
+    ],  # Took 20 minutes for ONE dataset! Very slow, not sure if I should include it
     em: [None],
     # scan: [0.7, 3],
     gdmp2: None,
@@ -109,14 +112,15 @@ def evaluate_method(config):
                 if cd_method.__name__ == "Node2Vec":
                     g_emb = Node2Vec(G)
                     mdl = g_emb.fit()
-                    emb_df = (
-                        pd.DataFrame(
-                            [mdl.wv.get_vector(str(n)) for n in G.nodes()],
-                            index=G.nodes
-                        )
+                    emb_df = pd.DataFrame(
+                        [mdl.wv.get_vector(str(n)) for n in G.nodes()], index=G.nodes
                     )
-                    kmeans = KMeans(n_clusters=len(gt_communities), random_state=0).fit(emb_df)
-                    pred_coms = transform_sklearn_labels_to_communities(labels=kmeans.labels_)
+                    kmeans = KMeans(n_clusters=len(gt_communities), random_state=0).fit(
+                        emb_df
+                    )
+                    pred_coms = transform_sklearn_labels_to_communities(
+                        labels=kmeans.labels_
+                    )
                     pred_coms = NodeClustering(communities=pred_coms, graph=G)
                 else:
                     if CD_METHODS[cd_method] is None:
