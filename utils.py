@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import seaborn as sns
 from collections import Counter
@@ -12,6 +13,8 @@ def draw_graph(
     node_color=None,
     nodelist=None,
     communities=None,
+    community_numbers=None,
+    community_sizes=None,
     title="Change me",
 ):
     """Draw a graph, with the choice of including communities or not"""
@@ -19,14 +22,15 @@ def draw_graph(
     plt.figure(figsize=(15, 10))
     plt.axis("off")
     if node_color is not None:
-        node_color_correct = [node_color[i] for i in sorted(nodelist[0])]
-        node_color_incorrect = [node_color[i] for i in sorted(nodelist[1])]
+        node_color_correct = [plt.cm.tab20(node_color[i]) for i in nodelist[0]]
+        node_color_incorrect = [plt.cm.tab20(node_color[i]) for i in nodelist[1]]
+
         nx.draw_networkx_nodes(
             G=G,
             pos=pos,
             nodelist=nodelist[0],  # Correct nodes
             node_size=100,
-            cmap=plt.cm.rainbow,
+            # cmap=plt.cm.tab20,
             node_color=node_color_correct,
             linewidths=0.5,
             edgecolors="black",
@@ -36,12 +40,28 @@ def draw_graph(
             pos=pos,
             nodelist=nodelist[1],  # Incorrect nodes
             node_size=175,
-            cmap=plt.cm.rainbow,
+            # cmap=plt.cm.tab20,
             node_color=node_color_incorrect,
             node_shape="*",
             linewidths=0.5,
             edgecolors="black",
         )
+
+        legend_elements = []
+        for idx, community_number in enumerate(sorted(community_numbers)):
+            legend_elements.append(
+                Line2D(
+                    [0],
+                    [0],
+                    marker="o",
+                    color="w",
+                    label=f"Community {community_number}: {community_sizes[idx]} nodes",
+                    markerfacecolor=plt.cm.tab20(community_number),
+                    markersize=15,
+                )
+            )
+        plt.legend(handles=legend_elements)
+
     elif communities is not None:
         # Coloring every node such that communities have the same color
         node_color = [0] * len(G.nodes)
@@ -71,22 +91,30 @@ def draw_graph(
 def gt_pred_same_colors(
     G: nx.Graph, gt_coms: list, pred_coms: list, mapping_list: list
 ):
-    # Coloring every node such that communities have the same color
+    # New approach where we can choose from 20 colors. First map GT coms to a color,
+    #  then pick "missing" colors for the rest
+
+    possible_colors = set(range(20))
+    chosen_colors = []
+
     node_color_gt = [-1] * len(G.nodes)
     for idx, community in enumerate(gt_coms):
         for node in community:
             node_color_gt[node] = idx
+        chosen_colors.append(idx)
+
+    possible_colors = possible_colors.difference(set(chosen_colors))
 
     node_color_pred = [-1] * len(G.nodes)
     for idx, community in enumerate(pred_coms):
+        if idx not in mapping_list:
+            color_misclassified_community = possible_colors.pop()
         for node in community:
-            if idx in mapping_list:
+            if idx in mapping_list:  # Correctly classified community
                 node_color_pred[node] = mapping_list.index(idx)
             else:  # For cases where a predicted community was never most similar with a gt community,
                 # we need the misclassified communities to also have the same color
-                node_color_pred[node] = idx + len(
-                    gt_coms
-                )  # By adding the above two, the wrong pred_coms will not have the same color as the gt_coms
+                node_color_pred[node] = color_misclassified_community
 
     return node_color_gt, node_color_pred
 
@@ -261,23 +289,54 @@ def interesting_playground_graphs(
     correct_nodes, incorrect_nodes = correct_incorrect_nodes(
         gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list
     )
+
     draw_graph(
         G,
         pos=pos,
         node_color=node_color_gt,
         nodelist=(correct_nodes, incorrect_nodes),
+        community_numbers=list(range(len(communities))),
+        community_sizes=[len(comm) for comm in communities],
         filename=f"{fairness_type}_{fair_unfair}_{idx}_gt",
         title=f"Number of real communities: {len(communities)}\n"
-        f"Community sizes distribution: {sorted([len(comm) for comm in communities], reverse=True)}",
+        # f"Community sizes distribution: {[len(comm) for comm in communities]}",
     )
+
+    # Reorder pred_coms such that it is in line with the order of the previous plot
+    new_pred_coms = [[] for i in range(len(pred_coms))]
+    pred_community_numbers = [None] * len(pred_coms)
+    new_pred_coms_idx = 0
+    nonexisting_community_number = len(communities)
+    for pred_coms_idx in mapping_list:
+        if pred_coms_idx >= 0:
+            new_pred_coms[new_pred_coms_idx] = pred_coms[pred_coms_idx]
+            try:
+                pred_community_numbers[pred_coms_idx] = mapping_list.index(new_pred_coms_idx)
+            except ValueError:
+                pred_community_numbers[new_pred_coms_idx] = nonexisting_community_number
+                nonexisting_community_number += 1
+            new_pred_coms_idx += 1
+
+    # Sometimes, there are still Nones in pred_community_numbers
+    for pred_index, community_number in enumerate(pred_community_numbers):
+        if community_number is None:
+            pred_community_numbers[pred_index] = nonexisting_community_number
+            nonexisting_community_number += 1
+
+    for new_pred_coms_idx, community in enumerate(new_pred_coms):
+        if not community:  # Empty list
+            new_pred_coms[new_pred_coms_idx] = pred_coms[new_pred_coms_idx]
+
     draw_graph(
         G,
         pos=pos,
         node_color=node_color_pred,
         nodelist=(correct_nodes, incorrect_nodes),
+        community_numbers=pred_community_numbers,
+        community_sizes=[len(comm) for comm in new_pred_coms],
         filename=f"{fairness_type}_{fair_unfair}_{idx}_pred",
         title=f"Number of predicted communities: {len(pred_coms)}\n"
-        f"Community sizes distribution: {sorted([len(comm) for comm in pred_coms], reverse=True)}",
+        # f"Community sizes distribution: {[len(comm) for comm in new_pred_coms]}",
     )
     print(f"EMD: {emd}, F1: {f1}, Acc: {acc}")
     print(f"Fractions type 1: {frac_type1}\nFractions type 2: {frac_type2}")
