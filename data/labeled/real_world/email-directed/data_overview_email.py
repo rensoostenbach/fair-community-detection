@@ -3,12 +3,12 @@ import csv
 
 from utils import draw_graph
 
-G = nx.read_edgelist("email-directed/email-Eu-core.txt", nodetype=int)
+G = nx.read_edgelist("email-Eu-core.txt", nodetype=int)
 
 communities = {}
 community_keys = set()
 
-with open("email-directed/email-Eu-core-department-labels.txt") as file:
+with open("email-Eu-core-department-labels.txt") as file:
     csv_reader = csv.reader(file, delimiter=" ")
     for row in csv_reader:
         node = int(row[0])

@@ -3,12 +3,12 @@ import csv
 
 from utils import draw_graph
 
-G = nx.read_edgelist("Youtube/com-youtube.ungraph.txt", nodetype=int)
+G = nx.read_edgelist("com-youtube.ungraph.txt", nodetype=int)
 
 communities = {}
 community_sizes = []
 
-with open("Youtube/com-youtube.all.cmty.txt") as file:
+with open("com-youtube.all.cmty.txt") as file:
     csv_reader = csv.reader(file, delimiter="\t")
     for idx, row in enumerate(csv_reader):
         community_sizes.append(len(row))
