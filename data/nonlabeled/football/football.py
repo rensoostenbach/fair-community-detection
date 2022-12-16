@@ -4,7 +4,6 @@ G = nx.read_gml("football.gml")
 print("debug")
 
 communities = set()
-# TODO: communities hieruit halen, undirected maken, en plotten om te kijken of het interessant kan zijn
 for node in G.nodes:
     communities.add(G.nodes[node]["value"])
 
