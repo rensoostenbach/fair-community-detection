@@ -4,7 +4,7 @@ from utils import scatterplot_fairness
 
 
 results = []
-results_directory = "Intermediate comparison Ray"
+results_directory = "DBLP"
 for root, dirs, files in os.walk(results_directory):
     for file in files:
         if file.endswith(".pickle"):
