@@ -16,13 +16,6 @@ for comm in communities_df["community"].unique():
 
 nx.set_node_attributes(G, communities)
 
-nodes_to_remove = []
-for node in G.nodes:
-    if not G.nodes[node]:  # If it does not have a community
-        nodes_to_remove.append(node)
-
-G.remove_nodes_from(nodes_to_remove)
-
 # Process overlapping nodes/communities if there are any, we remove them as a whole
 gt_communities = list({frozenset(G.nodes[v]["community"]) for v in G})
 overlapping = sum([len(com) for com in gt_communities]) > len(G.nodes)
