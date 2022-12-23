@@ -94,9 +94,6 @@ def modified_f_measure(pred_coms: list, real_coms: list, G: nx.Graph):
     )
 
 
-# TODO: Modified ARI
-#  plan van aanpak: Gewoon de approach van de paper overnemen, niks van sklearn o.i.d.
-#  Ziet ernaar uit dat dat wel goed te doen zou moeten zijn
 def paired_nodal_weights(nodes_subset: list or set, real_coms: list, G: nx.Graph):
     W_s = 0
     for node_u in nodes_subset:
