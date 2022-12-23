@@ -5,3 +5,5 @@ process_stanford_graph(
     community_file="com-amazon.top5000.cmty.txt",
     outname="Amazon_top5000",
 )
+
+# TODO: Check why this graph only has one community left
