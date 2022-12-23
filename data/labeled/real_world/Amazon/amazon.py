@@ -6,4 +6,4 @@ process_stanford_graph(
     outname="Amazon_top5000",
 )
 
-# TODO: Check why this graph only has one community left
+# This graph only has one community left --> Probably because we remove so many nodes that one comm is left

@@ -2,7 +2,7 @@ import pandas as pd
 import networkx as nx
 import numpy as np
 
-from data.labeled.utils import relabel_graph
+from data.utils import relabel_graph
 
 df = pd.read_csv("ent.petster-hamster", delim_whitespace=True, encoding="ansi")
 # Preprocess hometown such that we obtain the country
@@ -14,7 +14,12 @@ df["dat.country"] = df["dat.country"].str.split(";").str[-1].str.strip()
 min_5_df = df[df["dat.country"].map(df["dat.country"].value_counts()).gt(4)]
 nodes = min_5_df["ent"]
 # Transform this to a NetworkX Graph
-edges = pd.read_csv("out.petster-hamster", delim_whitespace=True, encoding="ansi", names=["source", "target"])
+edges = pd.read_csv(
+    "out.petster-hamster",
+    delim_whitespace=True,
+    encoding="ansi",
+    names=["source", "target"],
+)
 G = nx.from_pandas_edgelist(edges)
 G = G.subgraph(nodes)
 
@@ -34,3 +39,5 @@ nx.set_node_attributes(G, node_attributes)
 G_relabeled = relabel_graph(G=G)
 
 nx.write_gpickle(G_relabeled, "petster-hamster.pickle")
+
+# TODO: Make a different Graph using race as community label
