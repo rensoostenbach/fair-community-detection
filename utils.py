@@ -219,16 +219,26 @@ def scatterplot_fairness(
     """
     fairness_metrics = {"EMD": 0, "F1": 1, "FCC": 2}
     evaluation_metrics = {"ARI": 0, "VI": 1}
+
     for method, scores in fairness_scores.items():
-        fairness_score = [
-            x[fairness_metrics[fairness_metric]]
-            for x in scores
-            if x[fairness_metrics[fairness_metric]] is not None
-        ]
-        evaluation_score_list = [x for x in evaluation_scores[method]][
-            evaluation_metrics[evaluation_metric]
-        ]
-        eval_score = [x.score for x in evaluation_score_list if x is not None]
+        if len(scores[fairness_metrics[fairness_metric]]) > 1:  # Not a real-world dataset, thus LFR datasets
+            fairness_score = [
+                x[fairness_metrics[fairness_metric]]
+                for x in scores
+                if x[fairness_metrics[fairness_metric]] is not None
+            ]
+            evaluation_score_list = [x for x in evaluation_scores[method]][
+                evaluation_metrics[evaluation_metric]
+            ]
+            eval_score = [x.score for x in evaluation_score_list if x is not None]
+
+        else:  # Real-world dataset
+            fairness_score = scores[fairness_metrics[fairness_metric]]
+            evaluation_score_list = [x for x in evaluation_scores[method]][
+                evaluation_metrics[evaluation_metric]
+            ]
+            eval_score = [x.score for x in evaluation_score_list if x is not None]
+
         plt.errorbar(
             x=np.mean(fairness_score),
             y=np.mean(eval_score),
