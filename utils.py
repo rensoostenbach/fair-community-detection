@@ -221,7 +221,9 @@ def scatterplot_fairness(
     evaluation_metrics = {"ARI": 0, "VI": 1}
 
     for method, scores in fairness_scores.items():
-        if len(scores[fairness_metrics[fairness_metric]]) > 1:  # Not a real-world dataset, thus LFR datasets
+        if (
+            len(scores[fairness_metrics[fairness_metric]]) > 1
+        ):  # Not a real-world dataset, thus LFR datasets
             fairness_score = [
                 x[fairness_metrics[fairness_metric]]
                 for x in scores
@@ -321,7 +323,9 @@ def interesting_playground_graphs(
         if pred_coms_idx >= 0:
             new_pred_coms[new_pred_coms_idx] = pred_coms[pred_coms_idx]
             try:
-                pred_community_numbers[pred_coms_idx] = mapping_list.index(new_pred_coms_idx)
+                pred_community_numbers[pred_coms_idx] = mapping_list.index(
+                    new_pred_coms_idx
+                )
             except ValueError:
                 pred_community_numbers[new_pred_coms_idx] = nonexisting_community_number
                 nonexisting_community_number += 1
