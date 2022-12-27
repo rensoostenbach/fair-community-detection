@@ -20,7 +20,7 @@ This file will be used to compare all CD Methods on their fairness and accuracy.
 # SCAN en mcode: node_coverage is niet perse 1.
 # head_tail: Process finished with exit code -1073741571 (0xC00000FD)
 
-# TODO: Opsplitsen per underlying method
+# TODO: Opsplitsen per underlying method --> Kan ook pas in postprocessen omdat ik toch een Pickle heb voor elke method
 
 CD_METHODS = {
     louvain: None,
