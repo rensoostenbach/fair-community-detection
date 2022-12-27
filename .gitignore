@@ -175,6 +175,10 @@ cython_debug/
 /data/**/*.gz
 /data/**/*.pickle
 /data/**/*.abs
+/data/**/*.csv
+/data/**/ent.*
+/data/**/meta.*
+/data/**/out.*
 
 # Results
 /results/**/*.py
