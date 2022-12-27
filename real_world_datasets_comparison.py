@@ -17,9 +17,11 @@ from cdlib import NodeClustering
 from metrics.own_metric import calculate_fairness_metrics
 
 """
-Currently only DBLP dataset and petster-hamster.
+Currently works for DBLP, LiveJournal, YouTube, all petsters, blogcatalog, flickr
 Not using Ray because I can't fit that much into my RAM on my local machine.
 """
+
+# TODO: Can make this file run all datasets in a for loop
 
 PERCENTILE = 75
 CD_METHODS = [eigenvector, label_propagation, leiden, louvain]
@@ -47,6 +49,8 @@ def evaluate_method(config):
         G = pickle.load(graph_file)
 
     G.remove_edges_from(nx.selfloop_edges(G))
+
+    print(f"Graph characteristics: {str(G)}")
 
     communities = {frozenset(G.nodes[v]["community"]) for v in G}
     gt_communities = list(communities)
