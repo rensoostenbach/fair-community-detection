@@ -185,3 +185,4 @@ cython_debug/
 !/results/results.py
 /results/**/*.zip
 /results/**/keepdir
+/plots/*.png
