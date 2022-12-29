@@ -175,6 +175,82 @@ lineplot_fairness(
     f"(N_large: {num_large} nodes, 10 nodes are misclassified in small community)",
 )
 
+# Varying large community sizes and only mislabeling in large
+num_small = 25
+num_larges = [50, 60, 70, 80, 90, 100]
+emd = []
+f1 = []
+acc = []
+for num_large in num_larges:
+    graphs = varying_mu_values(
+        num_nodes_G1=num_small, num_nodes_G2=num_large, mus=[0.15]
+    )
+    for G in graphs:
+        communities = {frozenset(G.nodes[v]["community"]) for v in G}
+        gt_communities = list(communities)
+
+        #  Not important drawing stuff, just for myself
+        # pos = nx.spring_layout(G)  # compute graph layout
+        # draw_graph(
+        #     G,
+        #     pos=pos,
+        #     communities=communities,
+        #     filename=f"varying_small_comm_size_initial_graph_{num_small}",
+        #     title="Initial graph of varying small community size\n"
+        #     f"and misclassifying nodes in small community, N_small={num_small}, N_large=100",
+        # )
+
+        mislabel_comm_nodes = {
+            "large": 20
+        }
+        G_mislabeled = mislabel_nodes(
+            G=copy.deepcopy(G),
+            mislabel_comm_nodes=mislabel_comm_nodes,
+            percentile=75,
+        )
+        mislabeled_communities = {
+            frozenset(G_mislabeled.nodes[v]["community"]) for v in G_mislabeled
+        }
+
+        #  Not important drawing stuff, just for myself
+        # draw_graph(
+        #     G_mislabeled,
+        #     pos=pos,
+        #     communities=mislabeled_communities,
+        #     filename=f"varying_small_comm_size_{num_small}",
+        #     title=f"Graph with 10 misclassified nodes in small community\n"
+        #     f"N_large=100, N_small={num_small}",
+        # )
+
+        (
+            emd_fairness_score,
+            f1_fairness_score,
+            accuracy_fairness_score,
+        ) = calculate_fairness_metrics(
+            G=G,
+            gt_communities=gt_communities,
+            pred_communities=list(mislabeled_communities),
+            fairness_type="size",
+            percentile=75,
+            weighting=WEIGHTING_DICT,
+        )
+
+        emd.append(emd_fairness_score)
+        f1.append(f1_fairness_score)
+        acc.append(accuracy_fairness_score)
+
+lineplot_fairness(
+    emd=emd,
+    f1=f1,
+    acc=acc,
+    x_axis=num_larges,
+    xlabel="Size of large community",
+    noline=False,
+    filename="varying_large_comm_sizes_lineplot",
+    title=f"Fairness score per large community sizes\n"
+    f"(N_small: {num_small} nodes, 20 nodes are misclassified in large community)",
+)
+
 # Varying number of misclassified nodes in small or large community
 num_small = 25
 num_large = 50
