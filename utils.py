@@ -15,6 +15,7 @@ def draw_graph(
     communities=None,
     community_numbers=None,
     community_sizes=None,
+    comm_types=None,
     title="Change me",
 ):
     """Draw a graph, with the choice of including communities or not"""
@@ -49,17 +50,31 @@ def draw_graph(
 
         legend_elements = []
         for idx, community_number in enumerate(sorted(community_numbers)):
-            legend_elements.append(
-                Line2D(
-                    [0],
-                    [0],
-                    marker="o",
-                    color="w",
-                    label=f"Community {community_number}: {community_sizes[idx]} nodes",
-                    markerfacecolor=plt.cm.tab20(community_number),
-                    markersize=15,
+            try:
+                legend_elements.append(
+                    Line2D(
+                        [0],
+                        [0],
+                        marker="o",
+                        color="w",
+                        label=f"Community {community_number}: {community_sizes[idx]} nodes, {comm_types[idx]}",
+                        markerfacecolor=plt.cm.tab20(community_number),
+                        markersize=15,
+                    )
                 )
-            )
+            except IndexError:  # comm_types[idx] can throw IndexError if it is a new community
+                legend_elements.append(
+                    Line2D(
+                        [0],
+                        [0],
+                        marker="o",
+                        color="w",
+                        label=f"Community {community_number}: {community_sizes[idx]} nodes, unknown type",
+                        markerfacecolor=plt.cm.tab20(community_number),
+                        markersize=15,
+                    )
+                )
+
         plt.legend(handles=legend_elements)
 
     elif communities is not None:
@@ -119,7 +134,9 @@ def gt_pred_same_colors(
     return node_color_gt, node_color_pred
 
 
-def correct_incorrect_nodes(gt_coms: list, pred_coms: list, mapping_list: list, comm_types: list):
+def correct_incorrect_nodes(
+    gt_coms: list, pred_coms: list, mapping_list: list, comm_types: list
+):
     correct_nodes = []
     incorrect_nodes = []
     correct_dict = {key: 0 for key in np.unique(comm_types)}
@@ -304,8 +321,16 @@ def interesting_lfr_graphs(
     node_color_gt, node_color_pred = gt_pred_same_colors(
         G=G, gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list
     )
-    correct_nodes, incorrect_nodes, correct_dict, incorrect_dict = correct_incorrect_nodes(
-        gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list, comm_types=comm_types
+    (
+        correct_nodes,
+        incorrect_nodes,
+        correct_dict,
+        incorrect_dict,
+    ) = correct_incorrect_nodes(
+        gt_coms=communities,
+        pred_coms=pred_coms,
+        mapping_list=mapping_list,
+        comm_types=comm_types,
     )
 
     unique_comm_types = np.unique(comm_types)
@@ -316,6 +341,7 @@ def interesting_lfr_graphs(
         nodelist=(correct_nodes, incorrect_nodes),
         community_numbers=list(range(len(communities))),
         community_sizes=[len(comm) for comm in communities],
+        comm_types=comm_types,
         filename=f"{fairness_type}_{fair_unfair}_{idx}_gt",
         title=f"Number of real communities: {len(communities)}\n"
         f"Wrong {unique_comm_types[0]}: {incorrect_dict[unique_comm_types[0]]},"
@@ -356,6 +382,7 @@ def interesting_lfr_graphs(
         nodelist=(correct_nodes, incorrect_nodes),
         community_numbers=pred_community_numbers,
         community_sizes=[len(comm) for comm in new_pred_coms],
+        comm_types=comm_types,
         filename=f"{fairness_type}_{fair_unfair}_{idx}_pred",
         title=f"Number of predicted communities: {len(pred_coms)}\n"
         f"Wrong {unique_comm_types[0]}: {incorrect_dict[unique_comm_types[0]]},"
