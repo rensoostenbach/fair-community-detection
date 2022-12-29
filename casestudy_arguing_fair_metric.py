@@ -26,38 +26,38 @@ Different plots are created to visualize these situations, and to provide intuit
 # However, below code keeps a fixed graph and varies the number of misclassified nodes
 # This produces a nice graph, but manually mislabeling in density does not make that much sense
 
-num_dense_nodes = 80
-num_sparse_nodes = 40
-densenesses_G1 = [0.4]
-densenesses_G2 = [0.2]
-density_cutoff = 0.2
-inter_community_edges = 0.05
-graphs = varying_denseness(
-    num_nodes_G1=num_dense_nodes,
-    num_nodes_G2=num_sparse_nodes,
-    densenesses_G1=densenesses_G1,
-    densenesses_G2=densenesses_G2,
-    inter_community_edges=inter_community_edges,
-)
-
-for G in graphs:
-    communities = {frozenset(G.nodes[v]["community"]) for v in G}
-    gt_communities = list(communities)
-
-    #  Not important drawing stuff, just for myself
-    pos = nx.spring_layout(G)  # compute graph layout
-    draw_graph(
-        G,
-        pos=pos,
-        communities=communities,
-        filename=f"varying_density_size",
-        title="Two communities with different sizes and density",
-    )
-
-    emd = []
-    f1 = []
-    acc = []
-    misclassified_nodes = list(range(0, 22, 2))
+# num_dense_nodes = 80
+# num_sparse_nodes = 40
+# densenesses_G1 = [0.4]
+# densenesses_G2 = [0.2]
+# density_cutoff = 0.2
+# inter_community_edges = 0.05
+# graphs = varying_denseness(
+#     num_nodes_G1=num_dense_nodes,
+#     num_nodes_G2=num_sparse_nodes,
+#     densenesses_G1=densenesses_G1,
+#     densenesses_G2=densenesses_G2,
+#     inter_community_edges=inter_community_edges,
+# )
+#
+# for G in graphs:
+#     communities = {frozenset(G.nodes[v]["community"]) for v in G}
+#     gt_communities = list(communities)
+#
+#     #  Not important drawing stuff, just for myself
+#     pos = nx.spring_layout(G)  # compute graph layout
+#     draw_graph(
+#         G,
+#         pos=pos,
+#         communities=communities,
+#         filename=f"varying_density_size",
+#         title="Two communities with different sizes and density",
+#     )
+#
+#     emd = []
+#     f1 = []
+#     acc = []
+#     misclassified_nodes = list(range(0, 22, 2))
 #
 #     for num_misclassified_nodes in misclassified_nodes:
 #         print(f"Number of misclassified nodes: {num_misclassified_nodes}")
@@ -115,15 +115,15 @@ for num_small in num_smalls:
         gt_communities = list(communities)
 
         #  Not important drawing stuff, just for myself
-        pos = nx.spring_layout(G)  # compute graph layout
-        draw_graph(
-            G,
-            pos=pos,
-            communities=communities,
-            filename=f"varying_small_comm_size_initial_graph_{num_small}",
-            title="Initial graph of varying small community size\n"
-            f"and misclassifying nodes in small community, N_small={num_small}, N_large=100",
-        )
+        # pos = nx.spring_layout(G)  # compute graph layout
+        # draw_graph(
+        #     G,
+        #     pos=pos,
+        #     communities=communities,
+        #     filename=f"varying_small_comm_size_initial_graph_{num_small}",
+        #     title="Initial graph of varying small community size\n"
+        #     f"and misclassifying nodes in small community, N_small={num_small}, N_large=100",
+        # )
 
         mislabel_comm_nodes = {
             "small": 10
@@ -138,14 +138,14 @@ for num_small in num_smalls:
         }
 
         #  Not important drawing stuff, just for myself
-        draw_graph(
-            G_mislabeled,
-            pos=pos,
-            communities=mislabeled_communities,
-            filename=f"varying_small_comm_size_{num_small}",
-            title=f"Graph with 10 misclassified nodes in small community\n"
-            f"N_large=100, N_small={num_small}",
-        )
+        # draw_graph(
+        #     G_mislabeled,
+        #     pos=pos,
+        #     communities=mislabeled_communities,
+        #     filename=f"varying_small_comm_size_{num_small}",
+        #     title=f"Graph with 10 misclassified nodes in small community\n"
+        #     f"N_large=100, N_small={num_small}",
+        # )
 
         (
             emd_fairness_score,
@@ -186,15 +186,15 @@ for G in graph:
     gt_communities = list(communities)
 
     #  Not important drawing stuff, just for myself
-    pos = nx.spring_layout(G)  # compute graph layout
-    draw_graph(
-        G,
-        pos=pos,
-        filename=f"varying_misclassified_nodes_initial_graph",
-        communities=communities,
-        title="Initial graph of varying misclassified nodes\n"
-        "in small or large community, N_small=25, N_large=50",
-    )
+    # pos = nx.spring_layout(G)  # compute graph layout
+    # draw_graph(
+    #     G,
+    #     pos=pos,
+    #     filename=f"varying_misclassified_nodes_initial_graph",
+    #     communities=communities,
+    #     title="Initial graph of varying misclassified nodes\n"
+    #     "in small or large community, N_small=25, N_large=50",
+    # )
 
     small_large = ["small", "large"]
 
@@ -216,13 +216,13 @@ for G in graph:
             }
 
             #  Not important drawing stuff, just for myself
-            draw_graph(
-                G_mislabeled,
-                pos=pos,
-                filename=f"varying_misclassified_nodes_{size}_{num_misclassified_nodes}",
-                communities=mislabeled_communities,
-                title=f"Graph with {num_misclassified_nodes} misclassified nodes in {size} community",
-            )
+            # draw_graph(
+            #     G_mislabeled,
+            #     pos=pos,
+            #     filename=f"varying_misclassified_nodes_{size}_{num_misclassified_nodes}",
+            #     communities=mislabeled_communities,
+            #     title=f"Graph with {num_misclassified_nodes} misclassified nodes in {size} community",
+            # )
 
             (
                 emd_fairness_score,
@@ -263,15 +263,15 @@ for G in graph:
     gt_communities = list(communities)
 
     #  Not important drawing stuff, just for myself
-    pos = nx.spring_layout(G)  # compute graph layout
-    draw_graph(
-        G,
-        pos=pos,
-        filename="varying_misclassified_nodes_small_large_initial_graph",
-        title="Initial graph of varying misclassified nodes\n"
-        "in small and large community, N_small=25, N_large=50",
-        communities=communities,
-    )
+    # pos = nx.spring_layout(G)  # compute graph layout
+    # draw_graph(
+    #     G,
+    #     pos=pos,
+    #     filename="varying_misclassified_nodes_small_large_initial_graph",
+    #     title="Initial graph of varying misclassified nodes\n"
+    #     "in small and large community, N_small=25, N_large=50",
+    #     communities=communities,
+    # )
 
     small_large = ["small", "large"]
     emd = []
@@ -295,14 +295,14 @@ for G in graph:
             }
 
             #  Not important drawing stuff, just for myself
-            draw_graph(
-                G_mislabeled,
-                pos=pos,
-                filename=f"varying_misclassified_nodes_small_large_{num_misclassified_nodes_small}_{num_misclassified_nodes_large}",
-                communities=mislabeled_communities,
-                title=f"Graph with misclassified nodes in small and large community\n"
-                f"Misclassified in small: {num_misclassified_nodes_small}, misclassified in large: {num_misclassified_nodes_large}",
-            )
+            # draw_graph(
+            #     G_mislabeled,
+            #     pos=pos,
+            #     filename=f"varying_misclassified_nodes_small_large_{num_misclassified_nodes_small}_{num_misclassified_nodes_large}",
+            #     communities=mislabeled_communities,
+            #     title=f"Graph with misclassified nodes in small and large community\n"
+            #     f"Misclassified in small: {num_misclassified_nodes_small}, misclassified in large: {num_misclassified_nodes_large}",
+            # )
 
             (
                 emd_fairness_score,
