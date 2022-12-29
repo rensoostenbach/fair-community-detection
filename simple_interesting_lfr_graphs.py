@@ -28,6 +28,8 @@ TAU2 = 1.5
 MU = 0.21
 SEEDS = list(range(40))
 PERCENTILE = 75
+WEIGHTING_DICT = None
+# WEIGHTING_DICT = {"small": 1.5, "large": 1, "sparse": 1, "dense": 1}
 
 fairness_graphs = []
 
@@ -81,6 +83,7 @@ for fairness_type in fairness_types:
             fairness_type=fairness_type,
             percentile=PERCENTILE,
             interpret_results=True,
+            weighting=WEIGHTING_DICT,
         )
 
         emd.append(emd_fairness_score)

@@ -15,6 +15,10 @@ This file is used to generate synthetic situations such that we can argue about 
 Different plots are created to visualize these situations, and to provide intuition behind the metrics.
 """
 
+WEIGHTING_DICT = None
+# WEIGHTING_DICT = {"small": 1.5, "large": 1}
+
+
 # Varying mu values for pre-specified community sizes
 # num_small = 30
 # num_large = 30
@@ -157,6 +161,7 @@ for num_small in num_smalls:
             pred_communities=list(mislabeled_communities),
             fairness_type="size",
             percentile=75,
+            weighting=WEIGHTING_DICT,
         )
 
         emd.append(emd_fairness_score)
@@ -310,6 +315,7 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
+                weighting=WEIGHTING_DICT
             )
 
             emd.append(emd_fairness_score)
@@ -390,6 +396,7 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
+                weighting=WEIGHTING_DICT
             )
 
             emd.append(

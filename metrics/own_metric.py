@@ -50,27 +50,35 @@ def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
     )
 
 
-def score_per_comm_to_fairness(score_per_comm: list, comm_types: list):
+def score_per_comm_to_fairness(score_per_comm: list, comm_types: list, weighting=None):
     """
     Transform the score per community to a fairness score
 
     :param score_per_comm: Scores per community
     :param comm_types: Fairness type per community
+    :param weighting: Dictionary indicating class weights for small-large or sparse-dense, or None (default)
     :return: Float, fairness score
     """
-    type1_score, type2_score = split_types(score_per_comm, comm_types=comm_types)
+
+    type1_score, type2_score = split_types(
+        score_per_comm, comm_types=comm_types, weighting=weighting
+    )
     return fairness_score(
         type1_score=np.average(type1_score), type2_score=np.average(type2_score)
     )
 
 
-def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: list):
+def emd_fairness(
+    real_fractions: list, achieved_fractions: list, comm_types: list, weighting=None
+):
     """
     :param real_fractions: List containing 1's for the length of the number of ground-truth communities there are
     :param achieved_fractions: List containing the fractions of correctly classified nodes per ground-truth community
     :param comm_types: Fairness type per community
+    :param weighting: Dictionary indicating class weights for small-large or sparse-dense, or None (default)
     :return: Float, EMD Fairness
     """
+
     real_fractions_type1, real_fractions_type2 = split_types(
         distribution_fraction=real_fractions,
         comm_types=comm_types,
@@ -78,6 +86,7 @@ def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: lis
     achieved_fractions_type1, achieved_fractions_type2 = split_types(
         distribution_fraction=achieved_fractions,
         comm_types=comm_types,
+        weighting=weighting,
     )
 
     fairness_emd_type1 = wasserstein_distance(
@@ -100,6 +109,7 @@ def calculate_fairness_metrics(
     pred_communities: list,
     fairness_type: str,
     percentile=75,
+    weighting=None,
     interpret_results=False,
 ):
     """
@@ -110,6 +120,7 @@ def calculate_fairness_metrics(
     :param pred_communities: List of communities as predicted by CD method
     :param fairness_type: String indicating size, density
     :param percentile: Integer percentile of the small-large or density cutoff
+    :param weighting: Dictionary indicating class weights for small-large or sparse-dense, or None (default)
     :param interpret_results: Boolean indicating whether to return intermediate results to interpret them
     :return: Tuple containing all three fairness scores
     """
@@ -144,12 +155,13 @@ def calculate_fairness_metrics(
         real_fractions=real_fractions,
         achieved_fractions=achieved_fractions,
         comm_types=comm_types,
+        weighting=weighting
     )
     f1_fairness_score = score_per_comm_to_fairness(
-        score_per_comm=f1_per_comm, comm_types=comm_types
+        score_per_comm=f1_per_comm, comm_types=comm_types, weighting=weighting
     )
     accuracy_fairness_score = score_per_comm_to_fairness(
-        score_per_comm=achieved_fractions, comm_types=comm_types
+        score_per_comm=achieved_fractions, comm_types=comm_types, weighting=weighting
     )
 
     if interpret_results:

@@ -546,23 +546,35 @@ def find_max_jaccard(real_com: list, pred_coms: list):
     return most_similar_community, jaccard_score
 
 
-def split_types(distribution_fraction: list, comm_types: list):
+def split_types(distribution_fraction: list, comm_types: list, weighting=None):
     """
     Split scores per community into scores per fairness type
 
     :param distribution_fraction: List containing the scores per community, either as distributions or fractions
     :param comm_types: List containing the fairness type of each community
+    :param weighting: Dictionary indicating class weights for small-large or sparse-dense, or None (default)
     :return: type1, type2: Scores per fairness type
     """
 
     type1 = []
     type2 = []
     unique_comm_types = np.unique(comm_types)
-    for com_idx, comm_type in enumerate(comm_types):
-        if comm_type == unique_comm_types[0]:
-            type1.append(distribution_fraction[com_idx])
-        else:
-            type2.append(distribution_fraction[com_idx])
+
+    if weighting:
+        for com_idx, comm_type in enumerate(comm_types):
+            old_score = distribution_fraction[com_idx]
+            weighted_score = max(1 - (1 - old_score) * weighting[comm_type], 0)
+            if comm_type == unique_comm_types[0]:
+                type1.append(weighted_score)
+            else:
+                type2.append(weighted_score)
+    else:
+        for com_idx, comm_type in enumerate(comm_types):
+            if comm_type == unique_comm_types[0]:
+                type1.append(distribution_fraction[com_idx])
+            else:
+                type2.append(distribution_fraction[com_idx])
+
     return type1, type2
 
 
