@@ -185,7 +185,7 @@ def lineplot_fairness(
         plt.plot(x_axis, emd, "s", label="EMD Fairness")
         plt.plot(x_axis, f1, "s", label="F1 Fairness")
         plt.plot(x_axis, acc, "s", label="FCC Fairness")
-        plt.grid(None)
+        plt.grid(axis="y")
         plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     else:
         plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
