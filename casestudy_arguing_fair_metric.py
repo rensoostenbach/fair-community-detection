@@ -356,9 +356,9 @@ for G in graph:
 
     plot_heatmap(
         data=acc_arr,
-        title="Accuracy Fairness values for misclassifying nodes\n"
+        title="FCC Fairness values for misclassifying nodes\n"
         "in major (N=50) vs minor (N=25) community",
-        filename="varying_misclassified_nodes_small_large_heatmap_acc",
+        filename="varying_misclassified_nodes_small_large_heatmap_fcc",
     )
 
     emd_arr = np.empty((num_large, num_small))
