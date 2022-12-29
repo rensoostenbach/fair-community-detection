@@ -93,7 +93,7 @@ for fairness_type in ["density", "size"]:
                     evaluation_scores=ALL_UNDERLYING_EVALUATION[idx][0],
                     fairness_metric=fairness_metric,
                     evaluation_metric=evaluation_metric,
-                    title=f"{evaluation_metric} vs {fairness_metric} {fairness_type} Fairness"
+                    title=f"{evaluation_metric} vs {fairness_metric} - {fairness_type.capitalize()} Fairness"
                           f" for underlying method {ALL_UNDERLYING_FAIRNESS[idx][1]}",
                     filename=f"{results_directory}/Scatterplot_{fairness_type}_{evaluation_metric}_"
                              f"{fairness_metric}_{ALL_UNDERLYING_FAIRNESS[idx][1]}",
