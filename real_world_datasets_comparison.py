@@ -41,10 +41,8 @@ def evaluate_method(config):
     acc = []
     ari = []
     vi = []
-    
-    with open(
-        f"data/labeled/real_world/DBLP/DBLP_top5000.pickle", "rb"
-    ) as graph_file:
+
+    with open(f"data/labeled/real_world/DBLP/DBLP_top5000.pickle", "rb") as graph_file:
 
         G = pickle.load(graph_file)
 

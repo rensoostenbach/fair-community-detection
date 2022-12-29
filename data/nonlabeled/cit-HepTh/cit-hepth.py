@@ -17,13 +17,17 @@ for root, dirs, files in os.walk(os.curdir):
         if file.endswith(".abs"):
             journal_ref = None
             with open(f"{root}/{file}", "rb") as abstract:
-                journal_ref = re.search(r"Journal-ref: (.*?)\s\(", str(abstract.read()), re.M)
+                journal_ref = re.search(
+                    r"Journal-ref: (.*?)\s\(", str(abstract.read()), re.M
+                )
                 if journal_ref is not None:
                     journal_refs.append((file.split(".")[0], journal_ref.groups()[0]))
                     unique_journal_refs.add(journal_ref.groups()[0])
 
 df = pd.DataFrame(data=journal_refs, columns=["id", "journal-ref"])
-df["journal"] = df["journal-ref"].str.replace(r"\d+", "")  #  Remove the digits which are volume numbers
+df["journal"] = df["journal-ref"].str.replace(
+    r"\d+", ""
+)  #  Remove the digits which are volume numbers
 
 # Only keep instances that are in a race with at least 100 samples
 min_100_df = df[df["journal"].map(df["journal"].value_counts()).gt(99)]

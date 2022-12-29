@@ -205,9 +205,7 @@ for num_large in num_larges:
         #     f"and misclassifying nodes in small community, N_small={num_small}, N_large=100",
         # )
 
-        mislabel_comm_nodes = {
-            "large": 20
-        }
+        mislabel_comm_nodes = {"large": 20}
         G_mislabeled = mislabel_nodes(
             G=copy.deepcopy(G),
             mislabel_comm_nodes=mislabel_comm_nodes,
@@ -315,7 +313,7 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
-                weighting=WEIGHTING_DICT
+                weighting=WEIGHTING_DICT,
             )
 
             emd.append(emd_fairness_score)
@@ -396,7 +394,7 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
-                weighting=WEIGHTING_DICT
+                weighting=WEIGHTING_DICT,
             )
 
             emd.append(

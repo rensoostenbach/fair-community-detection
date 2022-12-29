@@ -5,7 +5,9 @@ import numpy as np
 from data.utils import relabel_graph
 
 # Preprocessed with Notepad++, removed every occurrence of \"
-df = pd.read_csv("ent.petster-friendships-dog-uniq", delim_whitespace=True, encoding="ansi")
+df = pd.read_csv(
+    "ent.petster-friendships-dog-uniq", delim_whitespace=True, encoding="ansi"
+)
 
 # Only keep instances that are in a race with at least 100 samples
 min_100_df = df[df["dat.race"].map(df["dat.race"].value_counts()).gt(99)]

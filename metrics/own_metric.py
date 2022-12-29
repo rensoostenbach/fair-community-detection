@@ -155,7 +155,7 @@ def calculate_fairness_metrics(
         real_fractions=real_fractions,
         achieved_fractions=achieved_fractions,
         comm_types=comm_types,
-        weighting=weighting
+        weighting=weighting,
     )
     f1_fairness_score = score_per_comm_to_fairness(
         score_per_comm=f1_per_comm, comm_types=comm_types, weighting=weighting
