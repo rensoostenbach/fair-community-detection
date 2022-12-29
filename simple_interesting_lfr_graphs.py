@@ -10,7 +10,7 @@ from utils import (
     small_large_communities,
     lineplot_fairness,
     classify_graph,
-    interesting_playground_graphs,
+    interesting_lfr_graphs,
 )
 
 
@@ -94,7 +94,7 @@ for fairness_type in fairness_types:
             abs(f1_fairness_score - emd_fairness_score) < 0.2
             and emd_fairness_score > 0.7
         ):
-            interesting_playground_graphs(
+            interesting_lfr_graphs(
                 fair_unfair="fair",
                 fairness_type=fairness_type,
                 G=G,
@@ -119,7 +119,7 @@ for fairness_type in fairness_types:
         elif (
             f1_fairness_score - emd_fairness_score > 0.3 and emd_fairness_score < 0.5
         ) or accuracy_fairness_score < 0.6:
-            interesting_playground_graphs(
+            interesting_lfr_graphs(
                 fair_unfair="unfair",
                 fairness_type=fairness_type,
                 G=G,

@@ -272,7 +272,7 @@ def scatterplot_fairness(
     plt.close()  # Use plot.show() if we want to show it
 
 
-def interesting_playground_graphs(
+def interesting_lfr_graphs(
     fair_unfair: str,
     fairness_type: str,
     G: nx.Graph,
