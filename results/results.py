@@ -25,7 +25,7 @@ for result in results:
 
 # Now we make scatterplots of accuracy vs fairness
 for fairness_type in ["density", "size"]:
-    for evaluation_metric in ["ARI", "VI"]:
+    for evaluation_metric in ["ARI", "VI", "ARI_m", "Purity_m"]:
         for fairness_metric in ["EMD", "F1", "FCC"]:
             scatterplot_fairness(
                 fairness_scores=eval(f"{fairness_type}_fairness_scores"),
