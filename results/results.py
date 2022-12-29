@@ -85,7 +85,6 @@ for fairness_type in ["density", "size"]:
                         underlying_methods=ALL_UNDERLYING_EVALUATION,
                     )
 
-    # TODO: Change code below
     for idx, scores in enumerate(zip(ALL_UNDERLYING_FAIRNESS, ALL_UNDERLYING_EVALUATION)):
         for evaluation_metric in ["ARI", "VI", "ARI_m", "Purity_m"]:
             for fairness_metric in ["EMD", "F1", "FCC"]:
