@@ -20,7 +20,6 @@ PROPAGATION = [
     "label_propagation",
     "agdl",
     "async_fluid",
-    "girvan_newman"
 ]
 SPECTRAL = [
     "kcut",
