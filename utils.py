@@ -629,7 +629,7 @@ def transform_sklearn_labels_to_communities(labels: list):
     return pred_coms
 
 
-def classify_graph(G: nx.Graph, percentile: int):
+def classify_graph(G: nx.Graph, percentile: dict):
     """
     Classify an LFR Graph to see whether it is suitable for testing fairness.
 
@@ -649,11 +649,11 @@ def classify_graph(G: nx.Graph, percentile: int):
     communities = list({frozenset(G.nodes[v]["community"]) for v in G})
 
     _, comm_types_size = small_large_communities(
-        communities=communities, percentile=percentile
+        communities=communities, percentile=percentile["size"]
     )
     size_counters = Counter(comm_types_size).values()
     _, comm_types_density = dense_sparse_communities(
-        G=G, communities=communities, percentile=percentile
+        G=G, communities=communities, percentile=percentile["density"]
     )
     density_counters = Counter(comm_types_density).values()
 

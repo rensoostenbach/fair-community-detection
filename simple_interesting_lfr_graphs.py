@@ -27,7 +27,7 @@ TAU1 = 3
 TAU2 = 1.5
 MU = 0.21
 SEEDS = list(range(40))
-PERCENTILE = 75
+PERCENTILE = {"size": 75, "density": 50}
 WEIGHTING_DICT = None
 # WEIGHTING_DICT = {"small": 1.5, "large": 1, "sparse": 1, "dense": 1}
 
@@ -81,7 +81,7 @@ for fairness_type in fairness_types:
             gt_communities=gt_communities,
             pred_communities=pred_coms.communities,
             fairness_type=fairness_type,
-            percentile=PERCENTILE,
+            percentile=PERCENTILE[fairness_type],
             interpret_results=True,
             weighting=WEIGHTING_DICT,
         )
