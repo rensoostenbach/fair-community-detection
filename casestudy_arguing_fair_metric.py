@@ -13,6 +13,7 @@ from metrics.own_metric import calculate_fairness_metrics
 """
 This file is used to generate synthetic situations such that we can argue about our fairness metrics.
 Different plots are created to visualize these situations, and to provide intuition behind the metrics.
+We only consider small-large synthetic situations here, since they are more interpretable.
 """
 
 WEIGHTING_DICT = None
