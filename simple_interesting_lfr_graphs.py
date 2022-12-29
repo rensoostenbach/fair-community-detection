@@ -142,14 +142,34 @@ for fairness_type in fairness_types:
             )
 
         else:
-            continue
+            interesting_lfr_graphs(
+                fair_unfair="unsure",
+                fairness_type=fairness_type,
+                G=G,
+                idx=idx,
+                communities=gt_communities,
+                pred_coms=pred_coms.communities,
+                emd=emd_fairness_score,
+                f1=f1_fairness_score,
+                acc=accuracy_fairness_score,
+                frac_type1=fractions_type1,
+                frac_type2=fractions_type2,
+                f1_type1=f1_type1,
+                f1_type2=f1_type2,
+                precision_type1=precision_type1,
+                precision_type2=precision_type2,
+                recall_type1=recall_type1,
+                recall_type2=recall_type2,
+                comm_types=comm_types,
+                mapping_list=mapping_list,
+            )
 
     lineplot_fairness(
         emd=emd,
         f1=f1,
         acc=acc,
         x_axis=list(range(len(eval(f"{fairness_type}_fairness_graphs")))),
-        xlabel="Generated graph number",
+        xlabel="Graph ID",
         noline=True,
         title=f"{fairness_type} fairness score for generated graphs",
         filename=f"lineplot_simple_interesting_lfr_graphs_{fairness_type}",

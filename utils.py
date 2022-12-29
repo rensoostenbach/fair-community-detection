@@ -119,21 +119,26 @@ def gt_pred_same_colors(
     return node_color_gt, node_color_pred
 
 
-def correct_incorrect_nodes(gt_coms: list, pred_coms: list, mapping_list: list):
+def correct_incorrect_nodes(gt_coms: list, pred_coms: list, mapping_list: list, comm_types: list):
     correct_nodes = []
     incorrect_nodes = []
+    correct_dict = {key: 0 for key in np.unique(comm_types)}
+    incorrect_dict = {key: 0 for key in np.unique(comm_types)}
 
     for idx, community in enumerate(gt_coms):
         for node in community:
             pred_com = mapping_list[idx]
             if pred_com == -1:
                 incorrect_nodes.append(node)
+                incorrect_dict[comm_types[idx]] += 1
             elif node in pred_coms[pred_com]:
                 correct_nodes.append(node)
+                correct_dict[comm_types[idx]] += 1
             else:
                 incorrect_nodes.append(node)
+                incorrect_dict[comm_types[idx]] += 1
 
-    return correct_nodes, incorrect_nodes
+    return correct_nodes, incorrect_nodes, correct_dict, incorrect_dict
 
 
 def lineplot_fairness(
@@ -163,6 +168,7 @@ def lineplot_fairness(
         plt.plot(x_axis, emd, "s", label="EMD Fairness")
         plt.plot(x_axis, f1, "s", label="F1 Fairness")
         plt.plot(x_axis, acc, "s", label="FCC Fairness")
+        plt.grid(None)
         plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     else:
         plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
@@ -298,10 +304,11 @@ def interesting_lfr_graphs(
     node_color_gt, node_color_pred = gt_pred_same_colors(
         G=G, gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list
     )
-    correct_nodes, incorrect_nodes = correct_incorrect_nodes(
-        gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list
+    correct_nodes, incorrect_nodes, correct_dict, incorrect_dict = correct_incorrect_nodes(
+        gt_coms=communities, pred_coms=pred_coms, mapping_list=mapping_list, comm_types=comm_types
     )
 
+    unique_comm_types = np.unique(comm_types)
     draw_graph(
         G,
         pos=pos,
@@ -311,7 +318,8 @@ def interesting_lfr_graphs(
         community_sizes=[len(comm) for comm in communities],
         filename=f"{fairness_type}_{fair_unfair}_{idx}_gt",
         title=f"Number of real communities: {len(communities)}\n"
-        # f"Community sizes distribution: {[len(comm) for comm in communities]}",
+        f"Wrong {unique_comm_types[0]}: {incorrect_dict[unique_comm_types[0]]},"
+        f" wrong {unique_comm_types[1]}: {incorrect_dict[unique_comm_types[1]]}",
     )
 
     # Reorder pred_coms such that it is in line with the order of the previous plot
@@ -350,7 +358,8 @@ def interesting_lfr_graphs(
         community_sizes=[len(comm) for comm in new_pred_coms],
         filename=f"{fairness_type}_{fair_unfair}_{idx}_pred",
         title=f"Number of predicted communities: {len(pred_coms)}\n"
-        # f"Community sizes distribution: {[len(comm) for comm in new_pred_coms]}",
+        f"Wrong {unique_comm_types[0]}: {incorrect_dict[unique_comm_types[0]]},"
+        f" wrong {unique_comm_types[1]}: {incorrect_dict[unique_comm_types[1]]}",
     )
     print(f"EMD: {emd}, F1: {f1}, Acc: {acc}")
     print(f"Fractions type 1: {frac_type1}\nFractions type 2: {frac_type2}")
