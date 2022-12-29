@@ -181,8 +181,6 @@ cython_debug/
 /data/**/out.*
 
 # Results
-/results/**/*.py
-!/results/results.py
 /results/**/*.zip
 /results/**/keepdir
 /plots/*.png
