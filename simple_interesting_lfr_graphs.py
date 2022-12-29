@@ -164,14 +164,16 @@ for fairness_type in fairness_types:
                 mapping_list=mapping_list,
             )
 
+    graph_numbers = list(range(len(eval(f"{fairness_type}_fairness_graphs"))))
+    x_axis = [f"$G_{graph_number}$" for graph_number in graph_numbers]
     lineplot_fairness(
         emd=emd,
         f1=f1,
         acc=acc,
-        x_axis=list(range(len(eval(f"{fairness_type}_fairness_graphs")))),
+        x_axis=x_axis,
         xlabel="Graph ID",
         noline=True,
-        title=f"{fairness_type} fairness score for generated graphs",
+        title=f"{fairness_type} fairness score for generated graphs".capitalize(),
         filename=f"lineplot_simple_interesting_lfr_graphs_{fairness_type}",
     )
 
