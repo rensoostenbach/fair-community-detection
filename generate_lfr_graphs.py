@@ -3,7 +3,7 @@ from networkx.generators.community import LFR_benchmark_graph
 from utils import classify_graph
 
 """
-
+Generate 1000 LFR graphs with set parameters, and classify whether they are suitable.
 """
 
 SEEDS = list(range(1000))
