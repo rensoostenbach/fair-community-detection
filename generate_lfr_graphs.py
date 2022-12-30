@@ -1,9 +1,13 @@
-import pickle
 import networkx as nx
 from networkx.generators.community import LFR_benchmark_graph
 from utils import classify_graph
 
+"""
+
+"""
+
 SEEDS = list(range(1000))
+PERCENTILE = {"size": 75, "density": 50}
 fairness_graphs = []
 
 for seed in SEEDS:
@@ -12,7 +16,7 @@ for seed in SEEDS:
             n=1000, tau1=3, tau2=1.5, mu=0.2, min_degree=4, min_community=25, seed=seed
         )
         print(f"Graph created with seed: {seed}")
-        fairness_graphs.append(classify_graph(G=G, percentile=75))
+        fairness_graphs.append(classify_graph(G=G, percentile=PERCENTILE))
     except nx.ExceededMaxIterations:
         print(f"Failed to create graph with seed: {seed}")
         continue
