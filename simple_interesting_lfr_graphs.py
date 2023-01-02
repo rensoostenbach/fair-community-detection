@@ -165,7 +165,7 @@ for fairness_type in fairness_types:
             )
 
     graph_numbers = list(range(len(eval(f"{fairness_type}_fairness_graphs"))))
-    x_axis = [f"$G_{graph_number}$" for graph_number in graph_numbers]
+    x_axis = [f"$G_{{{graph_number}}}$" for graph_number in graph_numbers]
     lineplot_fairness(
         emd=emd,
         f1=f1,
