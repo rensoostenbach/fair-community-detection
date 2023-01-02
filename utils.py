@@ -57,12 +57,13 @@ def draw_graph(
                         [0],
                         marker="o",
                         color="w",
-                        label=f"Community {community_number}: {community_sizes[idx]} nodes, {comm_types[idx]}",
+                        label=f"Community {community_number}: {community_sizes[idx]} nodes,"
+                              f" {comm_types[community_number]}",
                         markerfacecolor=plt.cm.tab20(community_number),
                         markersize=15,
                     )
                 )
-            except IndexError:  # comm_types[idx] can throw IndexError if it is a new community
+            except IndexError:  # comm_types[community_number] can throw IndexError if it is a new community
                 legend_elements.append(
                     Line2D(
                         [0],
