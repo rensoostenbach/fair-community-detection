@@ -38,14 +38,13 @@ MATRIX = ["markov_clustering", "chinesewhispers"]
 REPRESENTATIONAL = ["Node2Vec", "der", "gemsec", "ricci_community"]
 OTHER = ["sbm_dl", "sbm_dl_nested", "belief", "edmot", "em", "ga", "gdmp2", "scd"]
 
-# TODO: Perhaps change Matrix into something else
 for fairness_type in ["density", "size"]:
     ALL_UNDERLYING_FAIRNESS = [
         [{key: None for key in OPTIMIZATION}, "Optimization"],
         [{key: None for key in PROPAGATION}, "Label propagation"],
         [{key: None for key in SPECTRAL}, "Spectral properties"],
         [{key: None for key in DYNAMICS}, "Dynamics"],
-        [{key: None for key in MATRIX}, "Matrix"],
+        [{key: None for key in MATRIX}, "Matrix approach"],
         [{key: None for key in REPRESENTATIONAL}, "Representationanl learning"],
         [{key: None for key in OTHER}, "Other"],
     ]
@@ -54,7 +53,7 @@ for fairness_type in ["density", "size"]:
         [{key: None for key in PROPAGATION}, "Label propagation"],
         [{key: None for key in SPECTRAL}, "Spectral properties"],
         [{key: None for key in DYNAMICS}, "Dynamics"],
-        [{key: None for key in MATRIX}, "Matrix"],
+        [{key: None for key in MATRIX}, "Matrix approach"],
         [{key: None for key in REPRESENTATIONAL}, "Representationanl learning"],
         [{key: None for key in OTHER}, "Other"],
     ]
