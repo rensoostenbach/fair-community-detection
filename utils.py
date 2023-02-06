@@ -162,7 +162,7 @@ def correct_incorrect_nodes(
 def lineplot_fairness(
     emd: list,
     f1: list,
-    acc: list,
+    fcc: list,
     x_axis: list,
     xlabel: str,
     noline: bool,
@@ -174,7 +174,7 @@ def lineplot_fairness(
 
     :param emd: List containing EMD fairness scores
     :param f1: List containing F1 fairness scores
-    :param acc: List containing Acc fairness scores
+    :param fcc: List containing FCC fairness scores
     :param x_axis: List, values for the x-axis
     :param xlabel: String, x-axis label
     :parm noline: Boolean indicating if we don't want a line plot
@@ -185,13 +185,13 @@ def lineplot_fairness(
     if noline:
         plt.plot(x_axis, emd, "s", label="EMD Fairness")
         plt.plot(x_axis, f1, "s", label="F1 Fairness")
-        plt.plot(x_axis, acc, "s", label="FCC Fairness")
+        plt.plot(x_axis, fcc, "s", label="FCC Fairness")
         plt.grid(axis="y")
         plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     else:
         plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
         plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
-        plt.plot(x_axis, acc, label="FCC Fairness", marker=".")
+        plt.plot(x_axis, fcc, label="FCC Fairness", marker=".")
         plt.legend()
 
     plt.xlabel(f"{xlabel}")
