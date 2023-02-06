@@ -91,7 +91,7 @@ def evaluate_method(config):
         )
 
     with open(f"data/labeled/lfr/{fairness_type}_seeds.txt") as seeds_file:
-        seeds = [line.rstrip() for line in seeds_file][0]
+        seeds = [line.rstrip() for line in seeds_file][0]  # TODO: Change me for HPC, or maybe keep it as a first test
 
     emd = []
     f1 = []
