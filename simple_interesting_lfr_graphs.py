@@ -29,7 +29,6 @@ MU = 0.21
 SEEDS = list(range(40))
 PERCENTILE = {"size": 75, "density": 50}
 WEIGHTING_DICT = None
-# WEIGHTING_DICT = {"small": 1.5, "large": 1, "sparse": 1, "dense": 1}
 
 fairness_graphs = []
 
@@ -83,7 +82,6 @@ for fairness_type in fairness_types:
             fairness_type=fairness_type,
             percentile=PERCENTILE[fairness_type],
             interpret_results=True,
-            weighting=WEIGHTING_DICT,
         )
 
         emd.append(emd_fairness_score)

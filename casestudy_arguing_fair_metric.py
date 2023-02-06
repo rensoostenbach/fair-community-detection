@@ -16,10 +16,6 @@ Different plots are created to visualize these situations, and to provide intuit
 We only consider small-large synthetic situations here, since they are more interpretable.
 """
 
-WEIGHTING_DICT = None
-# WEIGHTING_DICT = {"small": 1.5, "large": 1}
-
-
 # Varying mu values for pre-specified community sizes
 # num_small = 30
 # num_large = 30
@@ -162,7 +158,6 @@ for num_small in num_smalls:
             pred_communities=list(mislabeled_communities),
             fairness_type="size",
             percentile=75,
-            weighting=WEIGHTING_DICT,
         )
 
         emd.append(emd_fairness_score)
@@ -236,7 +231,6 @@ for num_large in num_larges:
             pred_communities=list(mislabeled_communities),
             fairness_type="size",
             percentile=75,
-            weighting=WEIGHTING_DICT,
         )
 
         emd.append(emd_fairness_score)
@@ -314,7 +308,6 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
-                weighting=WEIGHTING_DICT,
             )
 
             emd.append(emd_fairness_score)
@@ -395,7 +388,6 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
-                weighting=WEIGHTING_DICT,
             )
 
             emd.append(
