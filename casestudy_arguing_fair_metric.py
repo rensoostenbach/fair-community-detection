@@ -57,7 +57,7 @@ We only consider small-large synthetic situations here, since they are more inte
 #
 #     emd = []
 #     f1 = []
-#     acc = []
+#     fcc = []
 #     misclassified_nodes = list(range(0, 22, 2))
 #
 #     for num_misclassified_nodes in misclassified_nodes:
@@ -78,7 +78,7 @@ We only consider small-large synthetic situations here, since they are more inte
 #         (
 #             emd_fairness_score,
 #             f1_fairness_score,
-#             accuracy_fairness_score,
+#             fcc_fairness_score,
 #         ) = calculate_fairness_metrics(
 #             G=G,
 #             gt_communities=gt_communities,
@@ -89,12 +89,12 @@ We only consider small-large synthetic situations here, since they are more inte
 #
 #         emd.append(emd_fairness_score)
 #         f1.append(f1_fairness_score)
-#         acc.append(accuracy_fairness_score)
+#         fcc.append(fcc_fairness_score)
 #
 #     plot_fairness(
 #         emd=emd,
 #         f1=f1,
-#         acc=acc,
+#         fcc=fcc,
 #         x_axis=misclassified_nodes,
 #         xlabel="Number of misclassified nodes",
 #         title="Fairness score per number of misclassified nodes",
@@ -106,7 +106,7 @@ num_smalls = [10, 15, 20, 25, 30, 35, 40, 45, 50]
 num_large = 100
 emd = []
 f1 = []
-acc = []
+fcc = []
 for num_small in num_smalls:
     graphs = varying_mu_values(
         num_nodes_G1=num_small, num_nodes_G2=num_large, mus=[0.15]
@@ -151,7 +151,7 @@ for num_small in num_smalls:
         (
             emd_fairness_score,
             f1_fairness_score,
-            accuracy_fairness_score,
+            fcc_fairness_score,
         ) = calculate_fairness_metrics(
             G=G,
             gt_communities=gt_communities,
@@ -162,12 +162,12 @@ for num_small in num_smalls:
 
         emd.append(emd_fairness_score)
         f1.append(f1_fairness_score)
-        acc.append(accuracy_fairness_score)
+        fcc.append(fcc_fairness_score)
 
 lineplot_fairness(
     emd=emd,
     f1=f1,
-    acc=acc,
+    fcc=fcc,
     x_axis=num_smalls,
     xlabel="Size of small community",
     noline=False,
@@ -181,7 +181,7 @@ num_small = 25
 num_larges = [50, 60, 70, 80, 90, 100]
 emd = []
 f1 = []
-acc = []
+fcc = []
 for num_large in num_larges:
     graphs = varying_mu_values(
         num_nodes_G1=num_small, num_nodes_G2=num_large, mus=[0.15]
@@ -224,7 +224,7 @@ for num_large in num_larges:
         (
             emd_fairness_score,
             f1_fairness_score,
-            accuracy_fairness_score,
+            fcc_fairness_score,
         ) = calculate_fairness_metrics(
             G=G,
             gt_communities=gt_communities,
@@ -235,12 +235,12 @@ for num_large in num_larges:
 
         emd.append(emd_fairness_score)
         f1.append(f1_fairness_score)
-        acc.append(accuracy_fairness_score)
+        fcc.append(fcc_fairness_score)
 
 lineplot_fairness(
     emd=emd,
     f1=f1,
-    acc=acc,
+    fcc=fcc,
     x_axis=num_larges,
     xlabel="Size of large community",
     noline=False,
@@ -276,7 +276,7 @@ for G in graph:
         misclassified_nodes = list(range(eval(f"num_{size}")))
         emd = []
         f1 = []
-        acc = []
+        fcc = []
         for num_misclassified_nodes in misclassified_nodes:
             mislabel_comm_nodes = {size: num_misclassified_nodes}
 
@@ -301,7 +301,7 @@ for G in graph:
             (
                 emd_fairness_score,
                 f1_fairness_score,
-                accuracy_fairness_score,
+                fcc_fairness_score,
             ) = calculate_fairness_metrics(
                 G=G,
                 gt_communities=gt_communities,
@@ -312,12 +312,12 @@ for G in graph:
 
             emd.append(emd_fairness_score)
             f1.append(f1_fairness_score)
-            acc.append(accuracy_fairness_score)
+            fcc.append(fcc_fairness_score)
 
         lineplot_fairness(
             emd=emd,
             f1=f1,
-            acc=acc,
+            fcc=fcc,
             x_axis=misclassified_nodes,
             xlabel=f"Number of misclassified nodes in {size} community",
             noline=False,
@@ -350,7 +350,7 @@ for G in graph:
     small_large = ["small", "large"]
     emd = []
     f1 = []
-    acc = []
+    fcc = []
 
     for num_misclassified_nodes_large in range(num_large):
         for num_misclassified_nodes_small in range(num_small):
@@ -381,7 +381,7 @@ for G in graph:
             (
                 emd_fairness_score,
                 f1_fairness_score,
-                accuracy_fairness_score,
+                fcc_fairness_score,
             ) = calculate_fairness_metrics(
                 G=G,
                 gt_communities=gt_communities,
@@ -404,11 +404,11 @@ for G in graph:
                     f1_fairness_score,
                 )
             )
-            acc.append(
+            fcc.append(
                 (
                     num_misclassified_nodes_large,
                     num_misclassified_nodes_small,
-                    accuracy_fairness_score,
+                    fcc_fairness_score,
                 )
             )
 
@@ -424,12 +424,12 @@ for G in graph:
         filename="varying_misclassified_nodes_small_large_heatmap_f1",
     )
 
-    acc_arr = np.empty((num_large, num_small))
-    for large, small, score in acc:
-        acc_arr[large][small] = score
+    fcc_arr = np.empty((num_large, num_small))
+    for large, small, score in fcc:
+        fcc_arr[large][small] = score
 
     plot_heatmap(
-        data=acc_arr,
+        data=fcc_arr,
         title="FCC Fairness values for misclassifying nodes\n"
         "in major (N=50) vs minor (N=25) community",
         filename="varying_misclassified_nodes_small_large_heatmap_fcc",

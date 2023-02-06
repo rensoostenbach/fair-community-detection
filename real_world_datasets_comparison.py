@@ -38,7 +38,7 @@ def evaluate_method(config):
 
     emd = []
     f1 = []
-    acc = []
+    fcc = []
     ari = []
     vi = []
 
@@ -60,7 +60,7 @@ def evaluate_method(config):
     (
         emd_fairness_score,
         f1_fairness_score,
-        accuracy_fairness_score,
+        fcc_fairness_score,
     ) = calculate_fairness_metrics(
         G=G,
         gt_communities=gt_communities,
@@ -71,11 +71,11 @@ def evaluate_method(config):
 
     emd.append(emd_fairness_score)
     f1.append(f1_fairness_score)
-    acc.append(accuracy_fairness_score)
+    fcc.append(fcc_fairness_score)
     ari.append(adjusted_rand_index(cdlib_communities, pred_coms))
     vi.append(variation_of_information(cdlib_communities, pred_coms))
 
-    fairness_scores = (emd, f1, acc)
+    fairness_scores = (emd, f1, fcc)
     evaluation_scores = (ari, vi)
 
     with open(

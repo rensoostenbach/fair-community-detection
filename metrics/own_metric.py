@@ -148,7 +148,7 @@ def calculate_fairness_metrics(
     f1_fairness_score = score_per_comm_to_fairness(
         score_per_comm=f1_per_comm, comm_types=comm_types
     )
-    accuracy_fairness_score = score_per_comm_to_fairness(
+    fcc_fairness_score = score_per_comm_to_fairness(
         score_per_comm=achieved_fractions, comm_types=comm_types
     )
 
@@ -168,7 +168,7 @@ def calculate_fairness_metrics(
         return (
             emd_fairness_score,
             f1_fairness_score,
-            accuracy_fairness_score,
+            fcc_fairness_score,
             fractions_type1,
             fractions_type2,
             f1_type1,
@@ -181,4 +181,4 @@ def calculate_fairness_metrics(
             comm_types,
         )
     else:
-        return emd_fairness_score, f1_fairness_score, accuracy_fairness_score
+        return emd_fairness_score, f1_fairness_score, fcc_fairness_score

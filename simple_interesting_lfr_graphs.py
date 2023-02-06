@@ -50,7 +50,7 @@ fairness_types = ["size", "density"]
 for fairness_type in fairness_types:
     emd = []
     f1 = []
-    acc = []
+    fcc = []
 
     for idx, G in enumerate(eval(f"{fairness_type}_fairness_graphs")):
         G.remove_edges_from(nx.selfloop_edges(G))
@@ -64,7 +64,7 @@ for fairness_type in fairness_types:
         (
             emd_fairness_score,
             f1_fairness_score,
-            accuracy_fairness_score,
+            fcc_fairness_score,
             fractions_type1,
             fractions_type2,
             f1_type1,
@@ -86,7 +86,7 @@ for fairness_type in fairness_types:
 
         emd.append(emd_fairness_score)
         f1.append(f1_fairness_score)
-        acc.append(accuracy_fairness_score)
+        fcc.append(fcc_fairness_score)
 
         if (
             abs(f1_fairness_score - emd_fairness_score) < 0.2
@@ -101,7 +101,7 @@ for fairness_type in fairness_types:
                 pred_coms=pred_coms.communities,
                 emd=emd_fairness_score,
                 f1=f1_fairness_score,
-                acc=accuracy_fairness_score,
+                fcc=fcc_fairness_score,
                 frac_type1=fractions_type1,
                 frac_type2=fractions_type2,
                 f1_type1=f1_type1,
@@ -116,7 +116,7 @@ for fairness_type in fairness_types:
 
         elif (
             f1_fairness_score - emd_fairness_score > 0.3 and emd_fairness_score < 0.5
-        ) or accuracy_fairness_score < 0.6:
+        ) or fcc_fairness_score < 0.6:
             interesting_lfr_graphs(
                 fair_unfair="unfair",
                 fairness_type=fairness_type,
@@ -126,7 +126,7 @@ for fairness_type in fairness_types:
                 pred_coms=pred_coms.communities,
                 emd=emd_fairness_score,
                 f1=f1_fairness_score,
-                acc=accuracy_fairness_score,
+                fcc=fcc_fairness_score,
                 frac_type1=fractions_type1,
                 frac_type2=fractions_type2,
                 f1_type1=f1_type1,
@@ -149,7 +149,7 @@ for fairness_type in fairness_types:
                 pred_coms=pred_coms.communities,
                 emd=emd_fairness_score,
                 f1=f1_fairness_score,
-                acc=accuracy_fairness_score,
+                fcc=fcc_fairness_score,
                 frac_type1=fractions_type1,
                 frac_type2=fractions_type2,
                 f1_type1=f1_type1,
@@ -167,7 +167,7 @@ for fairness_type in fairness_types:
     lineplot_fairness(
         emd=emd,
         f1=f1,
-        acc=acc,
+        fcc=fcc,
         x_axis=x_axis,
         xlabel="Graph ID",
         noline=True,
@@ -178,7 +178,7 @@ for fairness_type in fairness_types:
 
 # emd = []
 # f1 = []
-# acc = []
+# fcc = []
 #
 # for G in density_fairness_graphs:
 #     G.remove_edges_from(nx.selfloop_edges(G))
@@ -196,7 +196,7 @@ for fairness_type in fairness_types:
 #     (
 #         emd_fairness_score,
 #         f1_fairness_score,
-#         accuracy_fairness_score,
+#         fcc_fairness_score,
 #     ) = calculate_fairness_metrics(
 #         G=G,
 #         gt_communities=gt_communities,
@@ -207,12 +207,12 @@ for fairness_type in fairness_types:
 #
 #     emd.append(emd_fairness_score)
 #     f1.append(f1_fairness_score)
-#     acc.append(accuracy_fairness_score)
+#     fcc.append(fcc_fairness_score)
 #
 # lineplot_fairness(
 #     emd=emd,
 #     f1=f1,
-#     acc=acc,
+#     fcc=fcc,
 #     x_axis=list(range(len(density_fairness_graphs))),
 #     xlabel="Generated graph number",
 #     noline=True,
