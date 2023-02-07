@@ -2,6 +2,7 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 import csv
+from tqdm import tqdm
 
 
 def process_stanford_graph(edgelist_file: str, community_file: str, outname: str):
@@ -23,17 +24,18 @@ def process_stanford_graph(edgelist_file: str, community_file: str, outname: str
 
     G.remove_nodes_from(nodes_to_remove)
 
-    # Process overlapping nodes/communities if there are any, we remove them as a whole
-    gt_communities = list({frozenset(G.nodes[v]["community"]) for v in G})
-    overlapping = sum([len(com) for com in gt_communities]) > len(G.nodes)
-    if overlapping:
-        G = remove_overlapping_nodes(G=G)
-
     # We take the largest connected component if we have an unconnected Graph
     if not nx.is_connected(G):
         print(f"G is unconnected, so we take the largest connected component")
         Gcc = sorted(nx.connected_components(G), key=len, reverse=True)
         G = G.subgraph(Gcc[0])
+
+    # Process overlapping nodes/communities if there are any
+    gt_communities = list({frozenset(G.nodes[v]["community"]) for v in G})
+    overlapping = sum([len(com) for com in gt_communities]) > len(G.nodes)
+    if overlapping:
+        G = process_overlapping_nodes_communities(G=G)
+
 
     G_relabeled = relabel_graph(G=G)
 
@@ -72,6 +74,53 @@ def relabel_graph(G: nx.Graph):
         G_relabeled.nodes[node]["community"] = new_community
 
     return G_relabeled
+
+
+def process_overlapping_nodes_communities(G: nx.Graph):
+    """
+    CHANGE ME
+    :param G:
+    :return:
+    """
+    gt_communities = {frozenset(G.nodes[v]["community"]) for v in G}
+    df = pd.DataFrame(gt_communities)
+    value, count = np.unique(np.array(df).flatten(), return_counts=True)
+    non_nans = ~np.isnan(value)
+    value = value[non_nans]
+    counts = count[non_nans]
+    overlapping_nodes = value[np.where(counts > 1)]
+
+    # Adjust gt_communities such that we check every community if it has an overlapping node.
+    # If it is the first occurence of that node, we skip it. Else, we remove it from the community
+
+    list_gt_communities = [set(x) for x in gt_communities]
+    seen_nodes = set()
+    for comm in tqdm(list_gt_communities):
+        for overlapping_node in overlapping_nodes:
+            if overlapping_node in comm and overlapping_node not in seen_nodes:
+                seen_nodes.add(overlapping_node)
+            elif overlapping_node in comm and overlapping_node in seen_nodes:
+                comm.remove(overlapping_node)
+
+    H = G.copy()  # Avoid networkx frozen graph can't be modified error
+    for node in tqdm(H.nodes):
+        new_community = find_community(node_u=node, communities=list_gt_communities)
+        H.nodes[node]["community"] = list(new_community)
+
+    return H
+
+
+def find_community(node_u: int, communities: list):
+    """
+    Find the community that node_u belongs to.
+    :param node_u:
+    :param communities:
+    :return:
+    """
+    for idx, community in enumerate(communities):
+        for node in community:
+            if node == node_u:
+                return community
 
 
 def remove_overlapping_nodes(G: nx.Graph):
