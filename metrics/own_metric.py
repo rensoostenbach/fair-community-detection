@@ -1,6 +1,6 @@
 import networkx as nx
 import numpy as np
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 from scipy.stats import wasserstein_distance
 
 from utils import (
@@ -39,7 +39,9 @@ def f1_fairness(gt_communities: list, pred_coms: list, mapping_list: list):
     :return: F1 score per community
     """
     # Using sklearn implementation requires me to write some code te get y_true and y_pred
-    y_true, y_pred = transform_to_ytrue_ypred(gt_communities, pred_coms, mapping_list)
+    y_true, y_pred = transform_to_ytrue_ypred(
+        gt_communities=gt_communities, pred_coms=pred_coms, mapping_list=mapping_list
+    )
 
     return precision_recall_fscore_support(
         y_true,
@@ -100,6 +102,7 @@ def calculate_fairness_metrics(
     pred_communities: list,
     fairness_type: str,
     percentile=75,
+    alpha=0,
     interpret_results=False,
 ):
     """
@@ -110,9 +113,19 @@ def calculate_fairness_metrics(
     :param pred_communities: List of communities as predicted by CD method
     :param fairness_type: String indicating size, density
     :param percentile: Integer percentile of the small-large or density cutoff
+    :param alpha: Weighting parameter between 0 and 1. Can be either float (global) or dict (relative to community type)
     :param interpret_results: Boolean indicating whether to return intermediate results to interpret them
     :return: Tuple containing all three fairness scores
     """
+
+    if isinstance(alpha, (float, int)):
+        if not 0 <= alpha <= 1:
+            raise ValueError("Alpha should be between 0 and 1.")
+    elif isinstance(alpha, dict):
+        for value in alpha.values():
+            if not 0 <= value <= 1:
+                raise ValueError("Alpha should be between 0 and 1.")
+
     # Distributions / fractions
     real_distribution = [len(community) for community in gt_communities]
     real_fractions = [1] * len(gt_communities)
@@ -123,6 +136,7 @@ def calculate_fairness_metrics(
     achieved_fractions = list(
         np.array(achieved_distribution) / np.array(real_distribution)
     )
+    achieved_fractions_unweighted = achieved_fractions
 
     # Decide which type of fairness we are looking into
     if fairness_type == "size":
@@ -134,30 +148,80 @@ def calculate_fairness_metrics(
             G=G, communities=gt_communities, percentile=percentile
         )
 
-    precision, recall, f1_per_comm, support = f1_fairness(
-        gt_communities=gt_communities,
-        pred_coms=pred_communities,
-        mapping_list=mapping_list,
-    )
-
+    # Calculating all scores here, depending on the weighting for FCC and F1 fairness.
+    # No weighting needed for EMD
     emd_fairness_score = emd_fairness(
         real_fractions=real_fractions,
         achieved_fractions=achieved_fractions,
         comm_types=comm_types,
     )
-    f1_fairness_score = score_per_comm_to_fairness(
-        score_per_comm=f1_per_comm, comm_types=comm_types
+
+    TP_per_comm = np.array(achieved_distribution)
+    FN_per_comm_squared = (
+        np.array(real_distribution) - np.array(achieved_distribution)
+    ) ** 2
+
+    unweighted_fcc = score_per_comm_to_fairness(
+        score_per_comm=achieved_fractions_unweighted, comm_types=comm_types
     )
-    fcc_fairness_score = score_per_comm_to_fairness(
-        score_per_comm=achieved_fractions, comm_types=comm_types
+    achieved_fractions_weighted = TP_per_comm / (TP_per_comm + FN_per_comm_squared)
+    weighted_fcc = score_per_comm_to_fairness(
+        score_per_comm=achieved_fractions_weighted, comm_types=comm_types
     )
+
+    precision, recall, unweighted_f1_per_comm, support = f1_fairness(
+        gt_communities=gt_communities,
+        pred_coms=pred_communities,
+        mapping_list=mapping_list,
+    )
+
+    unweighted_f1 = score_per_comm_to_fairness(
+        score_per_comm=unweighted_f1_per_comm, comm_types=comm_types
+    )
+
+    y_true, y_pred = transform_to_ytrue_ypred(
+        gt_communities=gt_communities,
+        pred_coms=pred_communities,
+        mapping_list=mapping_list,
+    )
+    conf_matrix = confusion_matrix(
+        y_true=y_true, y_pred=y_pred, labels=list(range(len(gt_communities)))
+    )
+    FP_per_comm_squared = (conf_matrix.sum(axis=0) - np.diag(conf_matrix)) ** 2
+    weighted_f1_per_comm = (
+        2 * TP_per_comm / (2 * TP_per_comm + FP_per_comm_squared + FN_per_comm_squared)
+    )
+    weighted_f1 = score_per_comm_to_fairness(
+        score_per_comm=weighted_f1_per_comm, comm_types=comm_types
+    )
+
+    # Use the alpha parameter to calculate the final scores
+    if isinstance(alpha, (float, int)):
+        fcc_fairness_score = ((1 - alpha) * unweighted_fcc) + (alpha * weighted_fcc)
+        f1_fairness_score = ((1 - alpha) * unweighted_f1) + (alpha * weighted_f1)
+    else:  # Alpha is a dict
+        fcc_fairness_scores = [None] * len(comm_types)
+        f1_fairness_scores = [None] * len(comm_types)
+        for i, comm_type in enumerate(comm_types):
+            fcc_fairness_scores[i] = (
+                (1 - alpha[comm_type]) * achieved_fractions_unweighted[i]
+            ) + (alpha[comm_type] * achieved_fractions_weighted[i])
+            f1_fairness_scores[i] = (
+                (1 - alpha[comm_type]) * unweighted_f1_per_comm[i]
+            ) + (alpha[comm_type] * weighted_f1_per_comm[i])
+        fcc_fairness_score = score_per_comm_to_fairness(
+            score_per_comm=fcc_fairness_scores, comm_types=comm_types
+        )
+        f1_fairness_score = score_per_comm_to_fairness(
+            score_per_comm=f1_fairness_scores, comm_types=comm_types
+        )
 
     if interpret_results:
         fractions_type1, fractions_type2 = split_types(
             distribution_fraction=achieved_fractions, comm_types=comm_types
         )
         f1_type1, f1_type2 = split_types(
-            distribution_fraction=f1_per_comm, comm_types=comm_types
+            distribution_fraction=unweighted_f1_per_comm, comm_types=comm_types
         )
         precision_type1, precision_type2 = split_types(
             distribution_fraction=precision, comm_types=comm_types
@@ -169,6 +233,8 @@ def calculate_fairness_metrics(
             emd_fairness_score,
             f1_fairness_score,
             fcc_fairness_score,
+            weighted_f1,
+            weighted_fcc,
             fractions_type1,
             fractions_type2,
             f1_type1,

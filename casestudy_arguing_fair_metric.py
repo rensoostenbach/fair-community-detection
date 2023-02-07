@@ -388,6 +388,7 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
+                alpha={"small": 1, "large": 0},
             )
 
             emd.append(

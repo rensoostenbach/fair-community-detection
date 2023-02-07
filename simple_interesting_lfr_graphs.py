@@ -46,7 +46,7 @@ for seed in SEEDS:
 size_fairness_graphs = [x[0] for x in fairness_graphs if x[0] is not None]
 density_fairness_graphs = [x[1] for x in fairness_graphs if x[1] is not None]
 
-fairness_types = ["size", "density"]
+fairness_types = ["size"]
 for fairness_type in fairness_types:
     emd = []
     f1 = []
@@ -65,6 +65,8 @@ for fairness_type in fairness_types:
             emd_fairness_score,
             f1_fairness_score,
             fcc_fairness_score,
+            weighted_f1,
+            weighted_fcc,
             fractions_type1,
             fractions_type2,
             f1_type1,
@@ -81,6 +83,7 @@ for fairness_type in fairness_types:
             pred_communities=pred_coms.communities,
             fairness_type=fairness_type,
             percentile=PERCENTILE[fairness_type],
+            alpha={"small": 1, "large": 0},
             interpret_results=True,
         )
 
@@ -102,6 +105,8 @@ for fairness_type in fairness_types:
                 emd=emd_fairness_score,
                 f1=f1_fairness_score,
                 fcc=fcc_fairness_score,
+                weighted_f1=weighted_f1,
+                weighted_fcc=weighted_fcc,
                 frac_type1=fractions_type1,
                 frac_type2=fractions_type2,
                 f1_type1=f1_type1,
@@ -127,6 +132,8 @@ for fairness_type in fairness_types:
                 emd=emd_fairness_score,
                 f1=f1_fairness_score,
                 fcc=fcc_fairness_score,
+                weighted_f1=weighted_f1,
+                weighted_fcc=weighted_fcc,
                 frac_type1=fractions_type1,
                 frac_type2=fractions_type2,
                 f1_type1=f1_type1,
@@ -150,6 +157,8 @@ for fairness_type in fairness_types:
                 emd=emd_fairness_score,
                 f1=f1_fairness_score,
                 fcc=fcc_fairness_score,
+                weighted_f1=weighted_f1,
+                weighted_fcc=weighted_fcc,
                 frac_type1=fractions_type1,
                 frac_type2=fractions_type2,
                 f1_type1=f1_type1,

@@ -234,6 +234,8 @@ def interesting_lfr_graphs(
     emd: list,
     f1: list,
     fcc: list,
+    weighted_f1: list,
+    weighted_fcc: list,
     frac_type1: list,
     frac_type2: list,
     f1_type1: list,
@@ -317,7 +319,7 @@ def interesting_lfr_graphs(
         f"Wrong {unique_comm_types[0]}: {incorrect_dict[unique_comm_types[0]]},"
         f" wrong {unique_comm_types[1]}: {incorrect_dict[unique_comm_types[1]]}",
     )
-    print(f"EMD: {emd}, F1: {f1}, FCC: {fcc}")
+    print(f"EMD: {emd}, F1: {f1}, weighted {weighted_f1}, FCC: {fcc}, weighted {weighted_fcc}")
     print(f"Fractions type 1: {frac_type1}\nFractions type 2: {frac_type2}")
     print(f"F1 type 1: {f1_type1}\nF1 type 2: {f1_type2}")
     print(f"Precision type 1: {precision_type1}\nPrecision type 2: {precision_type2}")
