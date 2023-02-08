@@ -35,7 +35,7 @@ SPECTRAL = [
 DYNAMICS = ["infomap", "spinglass", "walktrap"]
 MATRIX = ["markov_clustering", "chinesewhispers"]
 REPRESENTATIONAL = ["Node2Vec", "der", "gemsec", "ricci_community"]
-OTHER = ["sbm_dl", "sbm_dl_nested", "belief", "edmot", "em", "ga", "gdmp2", "scd"]
+OTHER = ["sbm_dl", "sbm_dl_nested", "belief", "edmot", "em", "ga", "scd"]
 
 for fairness_type in ["density", "size"]:
     ALL_UNDERLYING_FAIRNESS = [
