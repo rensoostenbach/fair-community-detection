@@ -2,6 +2,7 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 import csv
+import random
 from tqdm import tqdm
 
 
@@ -35,7 +36,6 @@ def process_stanford_graph(edgelist_file: str, community_file: str, outname: str
     overlapping = sum([len(com) for com in gt_communities]) > len(G.nodes)
     if overlapping:
         G = process_overlapping_nodes_communities(G=G)
-
 
     G_relabeled = relabel_graph(G=G)
 
@@ -94,6 +94,8 @@ def process_overlapping_nodes_communities(G: nx.Graph):
     # If it is the first occurence of that node, we skip it. Else, we remove it from the community
 
     list_gt_communities = [set(x) for x in gt_communities]
+    # Randomly shuffle the above list so we traverse through the communities in a different order for every new run
+    random.shuffle(list_gt_communities)
     seen_nodes = set()
     for comm in tqdm(list_gt_communities):
         for overlapping_node in overlapping_nodes:
