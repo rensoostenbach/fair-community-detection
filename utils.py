@@ -384,8 +384,11 @@ def dense_sparse_communities(G: nx.Graph, communities: list, percentile: int):
     )
     # Need to divide above numbers by maximum amount of edges possible in community
     sizes = [len(community) for community in communities]
+    # For LiveJournal: max_possible_edges can be 0 in the case when a community has a single node. This results in
+    # np.nan, causing issues. Instead, we set the densities of these nans to 0.
     max_possible_edges = np.array([(size * (size - 1)) / 2 for size in sizes])
     densities = np.array(intra_com_edges / max_possible_edges)
+    densities = np.nan_to_num(densities)
     dense_sparse = {}
     dense_sparse_coms = []
 
