@@ -31,7 +31,10 @@ def scatterplot_fairness(
             evaluation_score_list = [x for x in evaluation_scores[method]][
                 evaluation_metrics[evaluation_metric]
             ]
-            eval_score = [x.score for x in evaluation_score_list if x is not None]
+            try:
+                eval_score = [x.score for x in evaluation_score_list if x is not None]
+            except AttributeError:  # Happens for Purity_m, since it is simply a float
+                eval_score = evaluation_score_list
 
         else:  # Real-world dataset
             fairness_score = scores[fairness_metrics[fairness_metric]]
