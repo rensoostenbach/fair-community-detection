@@ -15,22 +15,19 @@ def scatterplot_fairness(
     :param fairness_scores: Dictionary containing fairness scores per method and fairness type
     :param evaluation_scores: Dictionary containing accuracy values per method and accuracy type
     :param fairness_metric: String indicating fairness type: EMD, F1, FCC
-    :param evaluation_metric: String indicating evaluation metrics: ARI, VI, ARI_m, Purity_m
+    :param evaluation_metric: String indicating evaluation metrics: ARI, VI, Purity_m
     :param filename: Filename of plot that will be saved
     :return: Matplotlib plot
     """
     fairness_metrics = {"EMD": 0, "F1": 1, "FCC": 2}
-    evaluation_metrics = {"ARI": 0, "VI": 1, "ARI_m": 2, "Purity_m": 3}
+    evaluation_metrics = {"ARI": 0, "VI": 1, "Purity_m": 2}
 
     for method, scores in fairness_scores.items():
         if (
             len(scores[fairness_metrics[fairness_metric]]) > 1
         ):  # Not a real-world dataset, thus LFR datasets
-            fairness_score = [
-                x[fairness_metrics[fairness_metric]]
-                for x in scores
-                if x[fairness_metrics[fairness_metric]] is not None
-            ]
+            fairness_score = scores[fairness_metrics[fairness_metric]]
+            fairness_score = [x for x in fairness_score if x is not None]
             evaluation_score_list = [x for x in evaluation_scores[method]][
                 evaluation_metrics[evaluation_metric]
             ]

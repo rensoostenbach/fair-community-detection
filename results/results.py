@@ -28,11 +28,10 @@ SPECTRAL = [
     "r_spectral_clustering-sklearn_spectral_embedding",
     "r_spectral_clustering-sklearn_kmeans",
     "spectral",
-    "threshold_clustering",
 ]
-BETWEENNESS = [
-    None  # Not using either of the two methods, should remove it here and in my thesis
-]
+# BETWEENNESS = [
+#     None  # Not using either of the two methods, should remove it here and in my thesis
+# ]
 DYNAMICS = ["infomap", "spinglass", "walktrap"]
 MATRIX = ["markov_clustering", "chinesewhispers"]
 REPRESENTATIONAL = ["Node2Vec", "der", "gemsec", "ricci_community"]
@@ -45,7 +44,7 @@ for fairness_type in ["density", "size"]:
         [{key: None for key in SPECTRAL}, "Spectral properties"],
         [{key: None for key in DYNAMICS}, "Dynamics"],
         [{key: None for key in MATRIX}, "Matrix approach"],
-        [{key: None for key in REPRESENTATIONAL}, "Representationanl learning"],
+        [{key: None for key in REPRESENTATIONAL}, "Representational learning"],
         [{key: None for key in OTHER}, "Other"],
     ]
     ALL_UNDERLYING_EVALUATION = [
@@ -54,7 +53,7 @@ for fairness_type in ["density", "size"]:
         [{key: None for key in SPECTRAL}, "Spectral properties"],
         [{key: None for key in DYNAMICS}, "Dynamics"],
         [{key: None for key in MATRIX}, "Matrix approach"],
-        [{key: None for key in REPRESENTATIONAL}, "Representationanl learning"],
+        [{key: None for key in REPRESENTATIONAL}, "Representational learning"],
         [{key: None for key in OTHER}, "Other"],
     ]
 
@@ -67,6 +66,10 @@ for fairness_type in ["density", "size"]:
             if file.endswith(".pickle") and fairness_type_file == fairness_type:
                 method = filename_splitted[1]
                 score_type = filename_splitted[2]
+
+                if method == "r_spectral_clustering":  # Quick fix for having a - in the name
+                    method = filename_splitted[1] + "-" + filename_splitted[2]
+                    score_type = filename_splitted[3]
 
                 with open(f"{root}/{file}", "rb") as pickled_results:
                     pickled_scores = pickle.load(pickled_results)
@@ -85,7 +88,7 @@ for fairness_type in ["density", "size"]:
                     )
 
     for idx, scores in enumerate(zip(ALL_UNDERLYING_FAIRNESS, ALL_UNDERLYING_EVALUATION)):
-        for evaluation_metric in ["ARI", "VI", "ARI_m", "Purity_m"]:
+        for evaluation_metric in ["ARI", "VI", "Purity_m"]:
             for fairness_metric in ["EMD", "F1", "FCC"]:
                 scatterplot_fairness(
                     fairness_scores=ALL_UNDERLYING_FAIRNESS[idx][0],
