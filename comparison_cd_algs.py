@@ -18,7 +18,7 @@ from utils import transform_sklearn_labels_to_communities
 This file will be used to compare all CD Methods on their fairness and accuracy.
 """
 
-# SCAN en mcode: node_coverage is niet perse 1.
+# SCAN, mcode and gdmp2: node_coverage not 1.
 # head_tail: Process finished with exit code -1073741571 (0xC00000FD)
 
 CD_METHODS = {
@@ -40,7 +40,7 @@ CD_METHODS = {
     # ],  # Took 20 minutes for ONE dataset! Very slow, not sure if I should include it
     em: [None],
     # scan: [0.7, 3],
-    gdmp2: None,
+    # gdmp2: None,
     spinglass: None,
     eigenvector: None,
     agdl: [None, 4],
@@ -51,7 +51,6 @@ CD_METHODS = {
     chinesewhispers: None,
     ga: None,
     belief: None,
-    threshold_clustering: None,
     # mod_m: {"query_node": None},  # Only gives the community of the query node. Not sure if thats interesting, perhaps
     # mod_r: {"query_node": None},  # I should write code to query all nodes individually, and then combine the results
     # head_tail: None,
@@ -91,14 +90,13 @@ def evaluate_method(config):
         )
 
     with open(f"data/labeled/lfr/{fairness_type}_seeds.txt") as seeds_file:
-        seeds = [line.rstrip() for line in seeds_file][0]  # TODO: Change me for HPC, or maybe keep it as a first test
+        seeds = [line.rstrip() for line in seeds_file][:2]  # TODO: Change me for HPC, or maybe keep it as a first test
 
     emd = []
     f1 = []
     fcc = []
     ari = []
     vi = []
-    ari_m = []
     F_measure_m = []
     for seed in seeds:
         with open(
@@ -135,7 +133,10 @@ def evaluate_method(config):
                         labels=kmeans.labels_
                     )
                     pred_coms = NodeClustering(communities=pred_coms, graph=G)
-
+                elif cd_method.__name__ == "cpm":  # Specific case in terms of parameters
+                    pred_coms = cd_method(g_original=G, resolution_parameter=0.01)
+                elif cd_method.__name__ == "spectral":  # Specific case in terms of parameters
+                    pred_coms = cd_method(g_original=G, kmax=int(len(G.nodes)/10))
                 else:
                     if CD_METHODS[cd_method] is None:
                         pred_coms = cd_method(g_original=G)
@@ -171,11 +172,10 @@ def evaluate_method(config):
 
             ari.append(adjusted_rand_index(first_partition=cdlib_communities, second_partition=pred_coms))
             vi.append(variation_of_information(first_partition=cdlib_communities, second_partition=pred_coms))
-            ari_m.append(modified_ari(pred_coms=pred_coms.communities, real_coms=gt_communities, G=G))
             F_measure_m.append(modified_f_measure(pred_coms=pred_coms.communities, real_coms=gt_communities, G=G))
 
     fairness_scores = (emd, f1, fcc)
-    evaluation_scores = (ari, vi, ari_m, F_measure_m)
+    evaluation_scores = (ari, vi, F_measure_m)
 
     try:
         with open(
