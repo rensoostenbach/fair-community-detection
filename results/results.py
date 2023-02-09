@@ -14,7 +14,7 @@ OPTIMIZATION = [
     "paris",
     "pycombo",
     "rb_pots",
-    "rber_pots"
+    "rber_pots",
 ]
 PROPAGATION = [
     "label_propagation",
@@ -58,7 +58,7 @@ for fairness_type in ["density", "size"]:
     ]
 
     results = []
-    results_directory = "Comparison test 1 dataset"
+    results_directory = "Comparison test 2 datasets joblib"
     for root, _, files in os.walk(results_directory):
         for file in files:
             filename_splitted = os.path.basename(file).split("-")
@@ -67,7 +67,9 @@ for fairness_type in ["density", "size"]:
                 method = filename_splitted[1]
                 score_type = filename_splitted[2]
 
-                if method == "r_spectral_clustering":  # Quick fix for having a - in the name
+                if (
+                    method == "r_spectral_clustering"
+                ):  # Quick fix for having a - in the name
                     method = filename_splitted[1] + "-" + filename_splitted[2]
                     score_type = filename_splitted[3]
 
@@ -87,7 +89,9 @@ for fairness_type in ["density", "size"]:
                         underlying_methods=ALL_UNDERLYING_EVALUATION,
                     )
 
-    for idx, scores in enumerate(zip(ALL_UNDERLYING_FAIRNESS, ALL_UNDERLYING_EVALUATION)):
+    for idx, scores in enumerate(
+        zip(ALL_UNDERLYING_FAIRNESS, ALL_UNDERLYING_EVALUATION)
+    ):
         for evaluation_metric in ["ARI", "VI", "Purity_m"]:
             for fairness_metric in ["EMD", "F1", "FCC"]:
                 scatterplot_fairness(
@@ -96,7 +100,7 @@ for fairness_type in ["density", "size"]:
                     fairness_metric=fairness_metric,
                     evaluation_metric=evaluation_metric,
                     title=f"{evaluation_metric} vs {fairness_metric} - {fairness_type.capitalize()} Fairness"
-                          f" for underlying method {ALL_UNDERLYING_FAIRNESS[idx][1]}",
+                    f" for underlying method {ALL_UNDERLYING_FAIRNESS[idx][1]}",
                     filename=f"{results_directory}/Scatterplot_{fairness_type}_{evaluation_metric}_"
-                             f"{fairness_metric}_{ALL_UNDERLYING_FAIRNESS[idx][1]}",
+                    f"{fairness_metric}_{ALL_UNDERLYING_FAIRNESS[idx][1]}",
                 )
