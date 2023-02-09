@@ -82,6 +82,12 @@ def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: lis
         comm_types=comm_types,
     )
 
+    # Return an EMD score of 0 when one type is completely misclassified as a whole and the other is not
+    if (sum(achieved_fractions_type1) == 0 and sum(achieved_fractions_type2 > 0)) or (
+        sum(achieved_fractions_type2) == 0 and sum(achieved_fractions_type1 > 0)
+    ):
+        return 0
+
     fairness_emd_type1 = wasserstein_distance(
         u_values=real_fractions_type1, v_values=achieved_fractions_type1
     )
