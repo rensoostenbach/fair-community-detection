@@ -5,7 +5,7 @@ from datetime import datetime
 from itertools import product
 from sklearn.cluster import KMeans
 from cdlib.algorithms import *
-import ray
+from joblib import Parallel, delayed
 from node2vec import Node2Vec
 from cdlib.evaluation import adjusted_rand_index, variation_of_information
 from cdlib import NodeClustering
@@ -72,10 +72,6 @@ FAIRNESS_TYPES = ["size", "density"]
 PERCENTILE = {"size": 75, "density": 50}
 CONFIGS = list(product(CD_METHODS.keys(), FAIRNESS_TYPES))
 
-ray.init()
-
-
-@ray.remote
 def evaluate_method(config):
     cd_method = config[0]
     fairness_type = config[1]
@@ -90,7 +86,9 @@ def evaluate_method(config):
         )
 
     with open(f"data/labeled/lfr/{fairness_type}_seeds.txt") as seeds_file:
-        seeds = [line.rstrip() for line in seeds_file][:2]  # TODO: Change me for HPC, or maybe keep it as a first test
+        seeds = [line.rstrip() for line in seeds_file][
+            :2
+        ]  # TODO: Change me for HPC, or maybe keep it as a first test
 
     emd = []
     f1 = []
@@ -117,7 +115,9 @@ def evaluate_method(config):
                     "r_spectral_clustering-sklearn_spectral_embedding",
                     "r_spectral_clustering-sklearn_kmeans",
                 ]:
-                    method = cd_method.split("-")[1]  # Grab the element after the - icon
+                    method = cd_method.split("-")[
+                        1
+                    ]  # Grab the element after the - icon
                     cd_method_function = r_spectral_clustering
                     pred_coms = cd_method_function(g_original=G, method=method)
                 elif cd_method.__name__ == "Node2Vec":
@@ -133,10 +133,14 @@ def evaluate_method(config):
                         labels=kmeans.labels_
                     )
                     pred_coms = NodeClustering(communities=pred_coms, graph=G)
-                elif cd_method.__name__ == "cpm":  # Specific case in terms of parameters
+                elif (
+                    cd_method.__name__ == "cpm"
+                ):  # Specific case in terms of parameters
                     pred_coms = cd_method(g_original=G, resolution_parameter=0.01)
-                elif cd_method.__name__ == "spectral":  # Specific case in terms of parameters
-                    pred_coms = cd_method(g_original=G, kmax=int(len(G.nodes)/10))
+                elif (
+                    cd_method.__name__ == "spectral"
+                ):  # Specific case in terms of parameters
+                    pred_coms = cd_method(g_original=G, kmax=int(len(G.nodes) / 10))
                 else:
                     if CD_METHODS[cd_method] is None:
                         pred_coms = cd_method(g_original=G)
@@ -170,22 +174,34 @@ def evaluate_method(config):
             f1.append(f1_fairness_score)
             fcc.append(fcc_fairness_score)
 
-            ari.append(adjusted_rand_index(first_partition=cdlib_communities, second_partition=pred_coms))
-            vi.append(variation_of_information(first_partition=cdlib_communities, second_partition=pred_coms))
-            F_measure_m.append(modified_f_measure(pred_coms=pred_coms.communities, real_coms=gt_communities, G=G))
+            ari.append(
+                adjusted_rand_index(
+                    first_partition=cdlib_communities, second_partition=pred_coms
+                )
+            )
+            vi.append(
+                variation_of_information(
+                    first_partition=cdlib_communities, second_partition=pred_coms
+                )
+            )
+            F_measure_m.append(
+                modified_f_measure(
+                    pred_coms=pred_coms.communities, real_coms=gt_communities, G=G
+                )
+            )
 
     fairness_scores = (emd, f1, fcc)
     evaluation_scores = (ari, vi, F_measure_m)
 
     try:
         with open(
-            f"results/Initial comparison/{fairness_type}-{cd_method.__name__}-fairness-scores.pickle",
+            f"results/Comparison test 2 datasets joblib/{fairness_type}-{cd_method.__name__}-fairness-scores.pickle",
             "wb",
         ) as handle:
             pickle.dump(fairness_scores, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         with open(
-            f"results/Initial comparison/{fairness_type}-{cd_method.__name__}-evaluation-scores.pickle",
+            f"results/Comparison test 2 datasets joblib/{fairness_type}-{cd_method.__name__}-evaluation-scores.pickle",
             "wb",
         ) as handle:
             pickle.dump(evaluation_scores, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -195,13 +211,13 @@ def evaluate_method(config):
         )
     except AttributeError:  # Happens for r_spectral_clustering
         with open(
-            f"results/Initial comparison/{fairness_type}-{cd_method}-fairness-scores.pickle",
+            f"results/Comparison test 2 datasets joblib/{fairness_type}-{cd_method}-fairness-scores.pickle",
             "wb",
         ) as handle:
             pickle.dump(fairness_scores, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         with open(
-            f"results/Initial comparison/{fairness_type}-{cd_method}-evaluation-scores.pickle",
+            f"results/Comparison test 2 datasets joblib/{fairness_type}-{cd_method}-evaluation-scores.pickle",
             "wb",
         ) as handle:
             pickle.dump(evaluation_scores, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -212,6 +228,8 @@ def evaluate_method(config):
 
 
 if __name__ == "__main__":
-    for configuration in CONFIGS:
-        # evaluate_method(configuration)
-        evaluate_method.remote(configuration)
+    # for configuration in CONFIGS:
+    #     evaluate_method(configuration)
+
+    Parallel(n_jobs=-1)(
+        delayed(evaluate_method)(configuration) for configuration in CONFIGS)
