@@ -83,8 +83,8 @@ def emd_fairness(real_fractions: list, achieved_fractions: list, comm_types: lis
     )
 
     # Return an EMD score of 0 when one type is completely misclassified as a whole and the other is not
-    if (sum(achieved_fractions_type1) == 0 and sum(achieved_fractions_type2 > 0)) or (
-        sum(achieved_fractions_type2) == 0 and sum(achieved_fractions_type1 > 0)
+    if (sum(achieved_fractions_type1) == 0 and sum(achieved_fractions_type2) > 0) or (
+        sum(achieved_fractions_type2) == 0 and sum(achieved_fractions_type1) > 0
     ):
         return 0
 
