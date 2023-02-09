@@ -1,6 +1,6 @@
 from data.utils import process_stanford_graph
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for i in range(100):
         outname = f"LiveJournal_top5000_overlapping_processed_{i}"
         process_stanford_graph(
