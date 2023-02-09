@@ -21,7 +21,7 @@ ari_m = []
 F_measure_m = []
 for seed in seeds:
     with open(
-            f"data/labeled/lfr/{fairness_type}_graph_{seed}.pickle", "rb"
+        f"data/labeled/lfr/{fairness_type}_graph_{seed}.pickle", "rb"
     ) as graph_file:
         G = pickle.load(graph_file)
         G.remove_edges_from(nx.selfloop_edges(G))
@@ -51,10 +51,24 @@ for seed in seeds:
         f1.append(f1_fairness_score)
         fcc.append(fcc_fairness_score)
 
-        ari.append(adjusted_rand_index(first_partition=cdlib_communities, second_partition=pred_coms))
-        vi.append(variation_of_information(first_partition=cdlib_communities, second_partition=pred_coms))
-        ari_m.append(modified_ari(pred_coms=pred_coms.communities, real_coms=gt_communities, G=G))
-        F_measure_m.append(modified_f_measure(pred_coms=pred_coms.communities, real_coms=gt_communities, G=G))
+        ari.append(
+            adjusted_rand_index(
+                first_partition=cdlib_communities, second_partition=pred_coms
+            )
+        )
+        vi.append(
+            variation_of_information(
+                first_partition=cdlib_communities, second_partition=pred_coms
+            )
+        )
+        ari_m.append(
+            modified_ari(pred_coms=pred_coms.communities, real_coms=gt_communities, G=G)
+        )
+        F_measure_m.append(
+            modified_f_measure(
+                pred_coms=pred_coms.communities, real_coms=gt_communities, G=G
+            )
+        )
 
         fairness_scores = (emd, f1, fcc)
         evaluation_scores = (ari, vi, ari_m, F_measure_m)
