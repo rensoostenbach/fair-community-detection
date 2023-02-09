@@ -35,12 +35,14 @@ SPECTRAL = [
 DYNAMICS = ["infomap", "spinglass", "walktrap"]
 MATRIX = ["markov_clustering", "chinesewhispers"]
 REPRESENTATIONAL = ["Node2Vec", "der", "gemsec", "ricci_community"]
-OTHER = ["sbm_dl", "sbm_dl_nested", "belief", "edmot", "em", "ga", "scd"]
+OTHER = ["sbm_dl", "sbm_dl_nested", "belief", "edmot", "em",
+         # "ga",
+         "scd"]
 
 for fairness_type in ["density", "size"]:
     ALL_UNDERLYING_FAIRNESS = [
         [{key: None for key in OPTIMIZATION}, "Optimization"],
-        [{key: None for key in PROPAGATION}, "Label propagation"],
+        [{key: None for key in PROPAGATION}, "Propagation"],
         [{key: None for key in SPECTRAL}, "Spectral properties"],
         [{key: None for key in DYNAMICS}, "Dynamics"],
         [{key: None for key in MATRIX}, "Matrix approach"],
@@ -49,7 +51,7 @@ for fairness_type in ["density", "size"]:
     ]
     ALL_UNDERLYING_EVALUATION = [
         [{key: None for key in OPTIMIZATION}, "Optimization"],
-        [{key: None for key in PROPAGATION}, "Label propagation"],
+        [{key: None for key in PROPAGATION}, "Propagation"],
         [{key: None for key in SPECTRAL}, "Spectral properties"],
         [{key: None for key in DYNAMICS}, "Dynamics"],
         [{key: None for key in MATRIX}, "Matrix approach"],
@@ -58,7 +60,7 @@ for fairness_type in ["density", "size"]:
     ]
 
     results = []
-    results_directory = "Comparison test 2 datasets joblib"
+    results_directory = "HPC Comparison test 2 datasets joblib"
     for root, _, files in os.walk(results_directory):
         for file in files:
             filename_splitted = os.path.basename(file).split("-")
