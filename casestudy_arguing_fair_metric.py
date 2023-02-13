@@ -172,8 +172,8 @@ lineplot_fairness(
     xlabel="Size of small community",
     noline=False,
     filename="varying_small_comm_sizes_lineplot",
-    title=f"Fairness score per small community sizes\n"
-    f"(N_large: {num_large} nodes, 10 nodes are misclassified in small community)",
+    title=f"Fairness score per small community sizes"
+    # f"(N_large: {num_large} nodes, 10 nodes are misclassified in small community)",
 )
 
 # Varying large community sizes and only mislabeling in large
@@ -245,8 +245,8 @@ lineplot_fairness(
     xlabel="Size of large community",
     noline=False,
     filename="varying_large_comm_sizes_lineplot",
-    title=f"Fairness score per large community sizes\n"
-    f"(N_small: {num_small} nodes, 20 nodes are misclassified in large community)",
+    title=f"Fairness score per large community sizes"
+    # f"(N_small: {num_small} nodes, 20 nodes are misclassified in large community)",
 )
 
 # Varying number of misclassified nodes in small or large community
@@ -322,8 +322,8 @@ for G in graph:
             xlabel=f"Number of misclassified nodes in {size} community",
             noline=False,
             filename=f"varying_misclassified_nodes_lineplot_{size}",
-            title=f"Fairness score per number of misclassified nodes in {size} community\n"
-            f"N_small={num_small}, N_large={num_large}",
+            title=f"Fairness score per number of misclassified nodes in {size} community"
+            # f"N_small={num_small}, N_large={num_large}",
         )
 
 # Varying number of misclassified nodes in small and large community
@@ -388,7 +388,7 @@ for G in graph:
                 pred_communities=list(mislabeled_communities),
                 fairness_type="size",
                 percentile=75,
-                alpha={"small": 1, "large": 0},
+                # alpha={"small": 1, "large": 0},
             )
 
             emd.append(

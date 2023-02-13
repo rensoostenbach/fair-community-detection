@@ -183,21 +183,21 @@ def lineplot_fairness(
     :return: Matplotlib plot
     """
     if noline:
-        plt.plot(x_axis, emd, "s", label="EMD Fairness")
-        plt.plot(x_axis, f1, "s", label="F1 Fairness")
-        plt.plot(x_axis, fcc, "s", label="FCC Fairness")
+        plt.plot(x_axis, emd, "s", label="EMD Fairness", markersize=13, linestyle="dashed")
+        plt.plot(x_axis, f1, "s", label="F1 Fairness", markersize=13, linestyle="dashed")
+        plt.plot(x_axis, fcc, "s", label="FCC Fairness", markersize=13, linestyle="dashed")
         plt.grid(axis="y")
-        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left", fontsize=11)
     else:
-        plt.plot(x_axis, emd, label="EMD Fairness", marker=".")
-        plt.plot(x_axis, f1, label="F1 Fairness", marker=".")
-        plt.plot(x_axis, fcc, label="FCC Fairness", marker=".")
-        plt.legend()
+        plt.plot(x_axis, emd, label="EMD Fairness", marker=".", markersize=13, linestyle="dashed")
+        plt.plot(x_axis, f1, label="F1 Fairness", marker=".", markersize=13, linestyle="dashed")
+        plt.plot(x_axis, fcc, label="FCC Fairness", marker=".", markersize=13, linestyle="dashed")
+        plt.legend(fontsize=11)
 
-    plt.xlabel(f"{xlabel}")
-    plt.ylabel("Fairness scores")
+    plt.xlabel(f"{xlabel}", fontsize=13)
+    plt.ylabel("Fairness scores", fontsize=13)
     plt.ylim(bottom=0)
-    plt.title(f"{title}")
+    plt.title(f"{title}", fontsize=14)
     plt.savefig(f"plots/{filename}.png", bbox_inches="tight")
     plt.close()  # Use plot.show() if we want to show it
 
@@ -217,9 +217,9 @@ def plot_heatmap(
     """
     ax = sns.heatmap(data, cmap="crest_r")
     ax.invert_yaxis()
-    ax.set_xlabel("Number of misclassified nodes in minor community")
-    ax.set_ylabel("Number of misclassified nodes in major community")
-    plt.title(f"{title}")
+    ax.set_xlabel("Number of misclassified nodes in minor community", fontsize=13)
+    ax.set_ylabel("Number of misclassified nodes in major community", fontsize=13)
+    plt.title(f"{title}", fontsize=14)
     plt.savefig(f"plots/{filename}.png")
     plt.close()  # Use plot.show() if we want to show it
 

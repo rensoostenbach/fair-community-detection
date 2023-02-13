@@ -52,10 +52,10 @@ def scatterplot_fairness(
             fmt="o",
         )
 
-    plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
-    plt.xlabel(f"Average Fairness score of type {fairness_metric}")
-    plt.ylabel(f"Accuracy of type {evaluation_metric}")
-    plt.title(title)
+    plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left", fontsize=11)
+    plt.xlabel(f"Average Fairness score of type {fairness_metric}", fontsize=13)
+    plt.ylabel(f"Accuracy of type {evaluation_metric}", fontsize=13)
+    plt.title(title, fontsize=14)
     plt.xlim(0, 1)
     if evaluation_metric != "VI":
         plt.ylim(0, 1)
