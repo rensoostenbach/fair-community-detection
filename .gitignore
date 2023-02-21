@@ -184,3 +184,5 @@ cython_debug/
 /results/**/*.zip
 /results/**/keepdir
 /plots/*.png
+/results/**/*.pickle
+/results/**/*.png
