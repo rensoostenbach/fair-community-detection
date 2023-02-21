@@ -181,8 +181,7 @@ cython_debug/
 /data/**/out.*
 
 # Results
-/results/**/*.zip
-/results/**/keepdir
-/plots/*.png
-/results/**/*.pickle
-/results/**/*.png
+/results/*
+!/results/*.py
+!/results/LFR results/
+!/results/LiveJournal HPC/
