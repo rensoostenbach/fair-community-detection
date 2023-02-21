@@ -2,14 +2,12 @@ import pickle
 import os
 from utils import scatterplot_fairness, match_result_to_underlying_method
 
-
 OPTIMIZATION = [
     "louvain",
     "leiden",
     "cpm",
     "significance_communities",
     "surprise_communities",
-    "eigenvector",
     "greedy_modularity",
     "paris",
     "pycombo",
@@ -28,14 +26,20 @@ SPECTRAL = [
     "r_spectral_clustering-sklearn_spectral_embedding",
     "r_spectral_clustering-sklearn_kmeans",
     "spectral",
+    "eigenvector",
 ]
 # BETWEENNESS = [
 #     None  # Not using either of the two methods, should remove it here and in my thesis
 # ]
 DYNAMICS = ["infomap", "spinglass", "walktrap"]
 MATRIX = ["markov_clustering", "chinesewhispers"]
-REPRESENTATIONAL = ["Node2Vec", "der", "gemsec", "ricci_community"]
-OTHER = ["sbm_dl", "sbm_dl_nested", "belief", "edmot", "em",
+REPRESENTATIONAL = ["Node2Vec", "der",
+                    # "gemsec",
+                    "ricci_community"
+                    ]
+OTHER = ["sbm_dl", "sbm_dl_nested",
+         "belief",
+         "edmot", "em",
          # "ga",
          "scd"]
 
@@ -60,7 +64,7 @@ for fairness_type in ["density", "size"]:
     ]
 
     results = []
-    results_directory = "HPC Comparison test 2 datasets joblib"
+    results_directory = "LFR results"
     for root, _, files in os.walk(results_directory):
         for file in files:
             filename_splitted = os.path.basename(file).split("-")
