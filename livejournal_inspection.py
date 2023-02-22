@@ -30,8 +30,6 @@ for fairness_type in FAIRNESS_TYPES:
                 G=G, communities=gt_communities, percentile=PERCENTILE[fairness_type]
             )
 
-        # TODO: Per comm type, find out the total number of nodes in small/size or dense/spare comm:
-
         intra_com_edges = np.array(
             [
                 G.subgraph(gt_communities[idx]).size()
@@ -53,14 +51,11 @@ for fairness_type in FAIRNESS_TYPES:
 
         g = sns.displot(df, x="Community size", kde=True, kde_kws={'clip': (0.0, 1500)})
         plt.title(f"Distribution of community sizes")
-        # g.set_titles("Distribution of community sizes")
-        # plt.show()
         plt.tight_layout()
         plt.savefig(f"plots/LiveJournal_sizes.png", dpi=150)
+
         g = sns.displot(df, x="Community density", kde=True, kde_kws={'clip': (0.0, 1.0)})
         plt.title(f"Distribution of community densities")
-        # g.set_titles("Distribution of community densities")
-        # plt.show()
         plt.tight_layout()
         plt.savefig(f"plots/LiveJournal_densities.png", dpi=150)
         print(f"Count per group type: {df.groupby(['comm_type']).sum()}")
