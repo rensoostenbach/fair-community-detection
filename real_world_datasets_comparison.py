@@ -22,6 +22,7 @@ This file will be used to compare all CD Methods on their fairness and accuracy.
 # head_tail: Process finished with exit code -1073741571 (0xC00000FD)
 
 CD_METHODS = {
+    spinglass: None,
     louvain: None,
     leiden: None,
     # rb_pots: None,
@@ -41,7 +42,7 @@ CD_METHODS = {
     # em: [None],
     # scan: [0.7, 3],
     # gdmp2: None,
-    spinglass: None,
+    # spinglass: None,
     eigenvector: None,
     agdl: [None, 4],
     sbm_dl: None,
