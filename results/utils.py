@@ -2,6 +2,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+CD_METHODS_NICELY_NAMED = {
+    "significance_communities": "significance",
+    "surprise_communities": "surprise",
+    "cpm": "CPM",
+    "pycombo": "combo",
+    "rb_pots": "RB",
+    "rber_pots": "RB_er",
+    "greedy_modularity": "CNM",
+    "label_propagation": "label propagation",
+    "agdl": "AGDL",
+    "async_fluid": "Fluid communities",
+    "spectral": "spectral clustering",
+    "r_spectral_clustering-vanilla": "reg_vanilla",
+    "r_spectral_clustering-regularized_with_kmeans": "reg_kmeans",
+    "r_spectral_clustering-sklearn_spectral_embedding": "sk_spec_embed",
+    "r_spectral_clustering-sklearn_kmeans": "sk_kmeans",
+    "markov_clustering": "markov clustering",
+    "chinesewhispers": "chinese whispers",
+    "der": "DER",
+    "sbm_dl": "SBM",
+    "sbm_dl_nested": "Nested SBM",
+    "em": "EM",
+    "scd": "SCD",
+    "edmot": "EdMot",
+}
+
+
 def scatterplot_fairness(
     fairness_scores: dict,
     evaluation_scores: dict,
@@ -20,7 +47,7 @@ def scatterplot_fairness(
     :return: Matplotlib plot
     """
     fairness_metrics = {"EMD": 0, "F1": 1, "FCC": 2}
-    evaluation_metrics = {"ARI": 0, "VI": 1, "Purity_m": 2}
+    evaluation_metrics = {"ARI": 0, "VI": 1, "F_measure_m": 2}
 
     for method, scores in fairness_scores.items():
         if (
@@ -43,6 +70,13 @@ def scatterplot_fairness(
             ]
             eval_score = [x.score for x in evaluation_score_list if x is not None]
 
+        try:
+            method = CD_METHODS_NICELY_NAMED[method]
+            if method.islower():
+                method = method.capitalize()
+        except KeyError:  # If method doesn't exist in dictionary
+            method = method.capitalize()
+
         plt.errorbar(
             x=np.mean(fairness_score),
             y=np.mean(eval_score),
@@ -52,10 +86,12 @@ def scatterplot_fairness(
             fmt="o",
         )
 
-    plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left", fontsize=11)
+    plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
+               mode="expand", borderaxespad=0, ncol=3, fontsize=11)
+    # plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left", fontsize=11)
     plt.xlabel(f"Average Fairness score of type {fairness_metric}", fontsize=13)
     plt.ylabel(f"Accuracy of type {evaluation_metric}", fontsize=13)
-    plt.title(title, fontsize=14)
+    # plt.title(title, fontsize=14)
     plt.xlim(0, 1)
     if evaluation_metric != "VI":
         plt.ylim(0, 1)
