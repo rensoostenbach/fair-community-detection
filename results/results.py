@@ -98,7 +98,7 @@ for fairness_type in ["density", "size"]:
     for idx, scores in enumerate(
         zip(ALL_UNDERLYING_FAIRNESS, ALL_UNDERLYING_EVALUATION)
     ):
-        for evaluation_metric in ["ARI", "VI", "Purity_m"]:
+        for evaluation_metric in ["ARI", "VI", "F_measure_m"]:
             for fairness_metric in ["EMD", "F1", "FCC"]:
                 scatterplot_fairness(
                     fairness_scores=ALL_UNDERLYING_FAIRNESS[idx][0],
